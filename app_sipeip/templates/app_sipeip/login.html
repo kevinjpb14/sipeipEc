@@ -1,17 +1,19 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'app_sipeip/css/login.css' %}"/>
+    <link rel="stylesheet" href="{% static 'app_sipeip/css/login.css' %}" />
     <link rel="shortcut icon" type="image/x-icon" sizes="16x16" href="{% static 'favicon.ico' %}" />
 
-    <title>Sistema de Archivo</title>
-    
+    <title>SIPeIP+</title>
+
 </head>
+
 <body>
-   
+
     {% block content %}
     <div class="powered">
         <p>
@@ -33,13 +35,23 @@
                 <label>Clave</label><br>
                 <input type="password" name="password" placeholder="Escribe tu password" required><br>
                 <div class="btn">
-                        <button type="submit">Login</button><br>
+                    <button type="submit">Login</button><br>
                 </div>
+                <p style="text-align: center; margin-top: 10px;">
+                    <a href="{% url 'password_reset' %}" style="color: #3498db; text-decoration: none;">
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </p>
+
                 <p class="rojo">{{error}}</p>
             </div>
-        </form>   
+        </form>
     </div>
-   {% endblock %}
+    <div class="imagen-ecuador">
+        <img src="{% static 'app_sipeip/images/nuevo_Ec.png' %}" alt="Logo de Ecuador">
+    </div>
+
+    {% endblock %}
 </body>
 
 </html>

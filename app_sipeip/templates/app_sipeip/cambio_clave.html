@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cambio de Contraseña</title>
+    <link rel="stylesheet" href="{% static 'app_sipeip/css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h2>Cambio de Contraseña</h2>
+
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="password" name="nueva" placeholder="Nueva contraseña" required>
+                <input type="password" name="confirmar" placeholder="Confirmar contraseña" required>
+                <button type="submit">Actualizar contraseña</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

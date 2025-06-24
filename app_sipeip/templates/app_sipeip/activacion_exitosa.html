@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Activación Exitosa</title>
+    <meta http-equiv="refresh" content="4;url={% url 'inicio' %}"><!-- permite redireccionar en 4 segundos al inicio -->
+    <link rel="stylesheet" href="{% static 'app_sipeip/css/login.css' %}">
+    <style>
+        .loader {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .mensaje {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .mensaje h2 {
+            color: #2ecc71;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box mensaje">
+            <h2>Activación completada</h2>
+            <p>Se ha activado la cuenta y cambiado la contraseña.</p>
+            <p>Redirigiendo a la pantalla principal...</p>
+            <div class="loader"></div>
+        </div>
+    </div>
+</body>
+</html>

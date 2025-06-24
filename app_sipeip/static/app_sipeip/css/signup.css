@@ -11,25 +11,10 @@ button{
     background-color: #1A1B27;
     font-weight: 600;
     width: 100%;
-    opacity: 0.8;
-}
-.imagen-ecuador {
-    text-align: center;
-    margin-top: 20px;
-}
-
-.imagen-ecuador img {
-    max-width: 160px;  /* ajusta según el tamaño deseado */
-    height: auto;
-    opacity: 0.85;
-}
-
-input::placeholder {
-    opacity: 0.7;
 }
 
 button:hover{
-    opacity: 1;
+    opacity: 0.8;
 }
 .button-form {
     display: flex;
@@ -42,7 +27,6 @@ button:hover{
     text-decoration: none;
     cursor: pointer;
     color: #21D4FD;
-
 }
 .signup:hover{
     opacity: 0.8;
@@ -70,10 +54,6 @@ body{
     opacity: 0.3;
 }
 
-.rojo{
-    color: red;
-    text-align: center;
-}
 .logo:hover{
     opacity: 0.7;
 }
@@ -94,26 +74,30 @@ nav{
     display: flex;
     justify-content: center;
     padding-top: 3rem;
-    opacity: 0.7;
+    opacity: 0.6;
 }
 .sub-form{
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 23vw;
-    height: 62vh;
+    width: 25vw;
+    height: 70vh;
     border-radius: 12px;
-    box-shadow: 1px 1px 50px #000;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
     background-color: white;
-    
 }
 
+.rojo{
+    color: red;
+    text-align: center;
+}
 h2{
     margin: 1.5rem 0 2rem 0;
     text-align: center;
 }
 label{
     padding-left: 16px;
+    opacity: 0.75;
 }
 input{
     display: flex;
@@ -128,17 +112,4 @@ input{
 }
 input:focus{
     opacity: 0.7;
-}
-
-.powered{
-    margin-right: 5px;
-    text-align: right;
-    color: aliceblue;
-    font-size: x-small;
-    user-select: none;
-    text-shadow:
-    -1px -1px 0 #000, /* Sombra superior izquierda */
-    1px -1px 0 #000, /* Sombra superior derecha */
-    -1px 1px 0 #000, /* Sombra inferior izquierda */
-    1px 1px 0 #000; /* Sombra inferior derecha */
 }
