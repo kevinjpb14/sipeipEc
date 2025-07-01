@@ -136,3 +136,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SESSION_COOKIE_AGE = 900 #se define el tiempo de vigencia de la cookie de session en segundos (15 minutos)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False #booleano para definir si se cierra la sesion cuando cerramos el navegador
+LOGIN_URL ='login' #Se define la pagina principal cuando se produce un logout es donde se redirige
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Motor de almacenamiento de sesiones
+SESSION_SAVE_EVERY_REQUEST = True  # Guardar la sesión en cada solicitud

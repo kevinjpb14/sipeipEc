@@ -20,9 +20,14 @@ from app_sipeip import views
 from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.hello),
-    path('inicio/',views.hello,name='inicio'),
+    path('',views.inicio),
+    path('inicio/',views.inicio,name='inicio'),
     path('login/', views.login_view, name='login'),
+    path('conf_institucional/',views.conf_institucional,name='conf_institucional'),
+    path('modifica-institucion/<int:idinstitucion>/',views.institucion_modi, name="modi_inst"),#vista para modal de edicion institucional
+    path('modificar-institucion/<int:idinstitucion>/',views.institucion_modificar, name="modificar_inst"), #aqui se envia el post para editar la institucion
+
+    path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registrar_usuario, name='registro'),
     path('activar/<uidb64>/<token>/', views.activar_cuenta, name='activar_cuenta'),
     path('cambio-clave/', views.cambio_clave, name='cambio_clave'),

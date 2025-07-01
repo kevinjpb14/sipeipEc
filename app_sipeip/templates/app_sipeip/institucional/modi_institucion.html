@@ -1,0 +1,129 @@
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Institucion</title>
+</head>
+
+<body>
+
+    <form id="formulario-modi" method="post" action="{% url 'modificar_inst' institucion.idinstitucion %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="nombre">ID</label>
+            <input type="text" class="form-control" id="id" name="id" value="{{ institucion.idinstitucion }}" readonly>
+        </div>
+        <fieldset>
+            <h6>Seccion Sectores y Subsectores</h6>
+            <div class="row">
+                <div class="col">
+                    <div class="select-sector">
+                        <p>SECTORES</p>
+                        <select name="select-sect" id="select-sect" class="form-select " aria-label="Default select example"
+                            required>
+                            <option selected disabled value="{{institucion.idsector}}">{{institucion.idsubsector.idsector.nombre}}</option>
+                            {% for sector in sectores %}
+                            <option value="{{sector.idsector}}">{{sector.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>SUBSECTORES</p>
+
+                        <select id="select-subsect" name="select-subsect" class="form-select" aria-label="Default select example" required>
+                            <option selected disabled value="{{institucion.idsubsector.idsubsector}}">{{institucion.idsubsector.nombre}}</option>
+                            {% for subsector in subsectores %}
+                            <option value="{{subsector.idsubsector}}" data-chained=1>{{subsector.nombre}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+        <fieldset>
+            <h6>Seccion Datos Institucionales</h6>
+            <div class="row">
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Nombre Institucional</p>
+                        <input class="form-control" name="input-nombre" id="input-nombre" type="text"
+                            placeholder="Coloque el nombre de la institucion" value="{{institucion.nombre}}"
+                            aria-label="Disabled input example" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Nivel de Gobierno</p>
+                        <select id="select-nivelgobierno" name="select-nivelgobierno" class="form-select "aria-label="Default select example" required>
+                            <option selected disabled value="{{institucion.nivelgobierno}}">{{institucion.nivelgobierno}}</option>
+                            <option value="NACIONAL">NACIONAL</option>
+                            <option value="INTERNACIONAL">INTERNACIONAL</option>
+                        </select>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </fieldset>
+
+  
+        <br>
+        <div style="text-align: center;">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-success" id="verificar" onclick="obtenerValor()">Guardar cambios</button>
+            </div>
+            <input type="hidden" name="hselect-sect" id="hselect-sect">
+            <input type="hidden" name="hselect-subsect" id="hselect-subsect">
+            <input type="hidden" name="hselect-nivelgobierno" id="hselect-nivelgobierno">
+        </div>
+    </form>
+
+    <script type="text/javascript" charset="utf-8">
+        // AJAX QUE ME PERMITE VALIDAR SI EXISTE EL VALOR CODIFICADO Y NO PERMITE EL GUARDADO Y MANTIENE EL GET METHOD
+        $(document).ready(function () {
+            $('#formulario-modi').on('submit', function (e) {
+                e.preventDefault(); // Evita que se envíe el formulario por defecto
+                var valorDeseado = $('#input-nombre').val();
+                var valorDeseado2 = $('#id').val();
+                // Realiza la solicitud AJAX al servidor
+                $.ajax({
+                    type: 'POST',
+                    url: '/modificar-institucion/' + valorDeseado2 + '/', // Reemplaza con la URL correcta
+                    data: {
+                        'valor_deseado': valorDeseado,
+                        'valor_deseado2': valorDeseado2,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'  // Asegurarnos de incluir el token CSRF
+                    },
+                    success: function (response) {
+                        if (response.existe) {
+                            alert('El registro codificado: ' + valorDeseado + ' ya existe en la base de datos.');
+                        }
+                        else {
+                            // Si el registro no existe, puedes permitir el envío del formulario
+                            $('#formulario-modi').off('submit'); // Elimina el manejador para que el formulario se envíe
+                            $('#formulario-modi').submit(); // Envía el formulario
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
+{% endblock %}

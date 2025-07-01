@@ -204,6 +204,11 @@ class InstitucionSector(models.Model):
         managed = False
         db_table = 'institucion_sector'
 
+    def save(self, *args, **kwargs):
+        if self.nombre:
+            self.nombre = self.nombre.upper()
+        super().save(*args, **kwargs)
+           
 
 class InstitucionSubsector(models.Model):
     idsubsector = models.AutoField(db_column='idSubsector', primary_key=True)  # Field name made lowercase.
@@ -215,11 +220,15 @@ class InstitucionSubsector(models.Model):
         managed = False
         db_table = 'institucion_subsector'
 
+    def save(self, *args, **kwargs):
+        if self.nombre:
+            self.nombre = self.nombre.upper()
+        super().save(*args, **kwargs)
 
 class Instituciones(models.Model):
     idinstitucion = models.AutoField(db_column='idInstitucion', primary_key=True)  # Field name made lowercase.
     idsector = models.IntegerField(db_column='idSector')  # Field name made lowercase.
-    issubsector = models.ForeignKey(InstitucionSubsector, models.DO_NOTHING, db_column='isSubSector')  # Field name made lowercase.
+    idsubsector = models.ForeignKey(InstitucionSubsector, models.DO_NOTHING, db_column='idSubSector')  # Field name made lowercase.
     nombre = models.CharField(max_length=255)
     nivelgobierno = models.CharField(db_column='nivelGobierno', max_length=255)  # Field name made lowercase.
     estado = models.BooleanField()
@@ -230,6 +239,12 @@ class Instituciones(models.Model):
         managed = False
         db_table = 'instituciones'
 
+    def save(self, *args, **kwargs):
+        if self.nombre:
+            self.nombre = self.nombre.upper()
+        if self.nivelgobierno:
+            self.nivelgobierno = self.nivelgobierno.upper()
+        super().save(*args, **kwargs)
 
 class Metas(models.Model):
     idmeta = models.AutoField(db_column='idMeta', primary_key=True)  # Field name made lowercase.

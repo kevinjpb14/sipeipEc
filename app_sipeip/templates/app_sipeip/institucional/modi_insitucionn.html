@@ -1,0 +1,28 @@
+<!-- Modal editar -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="formEditarInstitucion">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalEditarLabel">Editar Institución</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editar-id">
+            <div class="mb-3">
+                <label for="editar-nombre" class="form-label">Nombre</label>
+                <input type="text" id="editar-nombre" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="editar-sigla" class="form-label">Sigla</label>
+                <input type="text" id="editar-sigla" class="form-control">
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

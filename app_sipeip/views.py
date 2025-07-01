@@ -4,7 +4,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse
 from django.views.decorators.cache import never_cache
-
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
@@ -18,7 +17,11 @@ from .models import Usuario
 from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import update_session_auth_hash
+from django.contrib import messages
+from .models import Instituciones,InstitucionSector,InstitucionSubsector
+from django.http import JsonResponse
 
+@login_required(login_url='login')  # Redirige al login si no está autenticado
 def registrar_usuario(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -120,18 +123,92 @@ def cambio_clave(request):
 
     return render(request, 'app_sipeip/cambio_clave.html')
 
-def hello(request):
-    return HttpResponse("Hola Mundo")
+#Funcion que me obtiene todos los modulos que cada rol tiene acceso, para mostrar en el menú lateral
+def obtener_modulos_por_usuario(usuario):
+  # Aquí defines los módulos según el rol/permiso del usuario
+    modulos = []
+    if usuario.idrol.nombre == 'Administrador':
+        modulos = [
+            {'nombre': 'Usuarios', 'url': '/usuarios/', 'icono': 'fa-user'},
+            {'nombre': 'Configuración Institucional', 'url': '/conf_institucional/', 'icono': 'fa-building-columns'},
+            {'nombre': 'Proyectos', 'url': '/proyectos/', 'icono': 'fa-diagram-project'},
+            {'nombre': 'Reportes', 'url': '/reportes/', 'icono': 'fa-file-excel'},
+            {
+                'nombre': 'Objetivos estratégicos',
+                'icono': 'fa-bullseye',
+                'submenu': [
+                    {'nombre': 'PND', 'url': '/objetivos/pnd/'},
+                    {'nombre': 'ODS', 'url': '/objetivos/ods/'},
+                    {'nombre': 'Objetivos estratégicos', 'url': '/objetivos/estrategicos/'},
+                    {'nombre': 'Alinear objetivos', 'url': '/objetivos/alinear/'},
+                ]
+            },
+        ]
+    elif usuario.idrol.nombre == 'Tecnico':
+        modulos = [
+            {'nombre': 'Proyectos', 'url': '/proyectos/'},
+        ]
+    return modulos
+
+@login_required(login_url='login')  # Redirige al login si no está autenticado
+def inicio(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
+    return render(request, 'app_sipeip/inicio.html', {'modulos': modulos})
+
+#vista de configuracion institucional principal, donde muestra el datatable con las consultas 
+@login_required
+def conf_institucional(request):
+    if request.method== 'GET':
+        usuario = request.user.usuario
+        modulos = obtener_modulos_por_usuario(usuario)
+        instituciones = Instituciones.objects.filter(estado=True)
+        return render(request,'app_sipeip/institucional/conf_institucional.html',{'instituciones': instituciones,'modulos': modulos})
+
+#vista para modal de edicion de institucion, donde mediante el id obtiene los campos para editar
+@login_required
+def institucion_modi(request,idinstitucion):
+   institucion=get_object_or_404(Instituciones,pk=idinstitucion)
+   print(institucion.idsubsector.idsubsector)
+   sectores = InstitucionSector.objects.all()
+   subsectores = InstitucionSubsector.objects.all()
+   
+   return render(request,'app_sipeip/institucional/modi_institucion.html',{'institucion':institucion,'sectores': sectores,'subsectores': subsectores})
+
+#vista para post de edicion de institucion, donde mediante el id actualiza
+@login_required
+def institucion_modificar(request,idinstitucion):
+     if request.method == 'POST':
+        valor_deseado = request.POST.get('valor_deseado', None)
+        valor_deseado2 = request.POST.get('valor_deseado2', None)
+    
+        if valor_deseado:
+         # Realiza la verificación en la base de datos
+            registro_existe = Instituciones.objects.filter(nombre=valor_deseado).exists()
+            if Instituciones.objects.filter(nombre=valor_deseado,idinstitucion = valor_deseado2).exists():
+                registro_existe= False
+            return JsonResponse({'existe': registro_existe})
+        else:
+            print(request.POST)
+            inst= get_object_or_404(Instituciones,pk=idinstitucion)
+            nombre = request.POST.get('input-nombre')
+            inst.nombre = nombre
+            inst.save()
+            messages.success(request, 'Los datos se han Modificado exitosamente.')
+            return redirect('conf_institucional')
 
 @never_cache
 def login_view(request):
+    #si ya se encuentra autenticado, redirecciona al inicio
+    if request.user.is_authenticated:
+        return redirect('inicio')
     
-
     if request.method== 'GET':
-
+     if 'next' in request.GET:
+        messages.warning(request, 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.')
      return render(request, 'app_sipeip/login.html')
     #return render(request,'login.html',{'form': UserCreationForm})
-    else:
+    if request.method == 'POST':
         user = authenticate(request, username= request.POST['username'], password= request.POST['password'])
         if user is None:
             return render(request,'app_sipeip/login.html',{'error': 'Username o password incorrecto'})
@@ -139,4 +216,8 @@ def login_view(request):
             logout(request)
             login(request, user) #Aquí guarda la sesión en la cookie del navegador
            
-            return redirect('cons_arch')
+            return redirect('inicio')
+        
+def logout_view(request):
+    logout(request)    
+    return redirect('login')       

@@ -20,6 +20,14 @@
             Powered By: SNP
         </p>
     </div>
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li style="color: red; text-align: center;">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
     <nav class="container">
         <div class="logo-box">
             <img src="{% static 'app_sipeip/images/logo.png' %}" alt="senplades" class="logo">
