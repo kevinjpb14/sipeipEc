@@ -27,9 +27,10 @@
                         <p>SECTORES</p>
                         <select name="select-sect" id="select-sect" class="form-select " aria-label="Default select example"
                             required>
-                            <option selected disabled value="{{institucion.idsector}}">{{institucion.idsubsector.idsector.nombre}}</option>
+                            <!-- <option selected disabled value="{{institucion.idsector}}">{{institucion.idsubsector.idsector.nombre}}</option> -->
                             {% for sector in sectores %}
-                            <option value="{{sector.idsector}}">{{sector.nombre}}</option>
+                            <!-- <option value="{{sector.idsector}}">{{sector.nombre}}</option> -->
+                            <option value="{{ sector.idsector }}" {% if institucion.idsector == sector.idsector %}selected{% endif %}>{{ sector.nombre }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -40,9 +41,9 @@
                         <p>SUBSECTORES</p>
 
                         <select id="select-subsect" name="select-subsect" class="form-select" aria-label="Default select example" required>
-                            <option selected disabled value="{{institucion.idsubsector.idsubsector}}">{{institucion.idsubsector.nombre}}</option>
+                            <!-- <option selected disabled value="{{institucion.idsubsector.idsubsector}}">{{institucion.idsubsector.nombre}}</option> -->
                             {% for subsector in subsectores %}
-                            <option value="{{subsector.idsubsector}}" data-chained=1>{{subsector.nombre}}</option>
+                            <option value="{{subsector.idsubsector}}" {% if institucion.idsubsector.idsubsector == subsector.idsubsector %}selected{% endif %}>{{subsector.nombre}}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -122,6 +123,23 @@
                 });
             });
         });
+        //AL Cambiar de Sector, realiza una consulta para traerme los subsectores relacionados
+         $('#select-sect').on('change', function () {
+        const idSector = $(this).val();
+        const url = '{% url "obtener_subsectores" %}';
+
+        $.ajax({
+            url: url,
+            data: { idsector: idSector },
+            success: function (data) {
+                const $subsector = $('#select-subsect');
+                $subsector.empty().append('<option value="" disabled>SELECCIONE...</option>');
+                data.forEach(function (item) {
+                    $subsector.append(`<option value="${item.idsubsector}">${item.nombre}</option>`);
+                });
+            }
+        });
+    });
     </script>
 </body>
 

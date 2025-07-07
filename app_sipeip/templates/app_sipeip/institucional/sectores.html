@@ -38,37 +38,31 @@
         {% endif %}
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 ">
-                <h3 class="mb-4">Configuración Institucional</h3>
-                <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarInstitucion">
+                <h3 class="mb-4">Sectores Institucionales</h3>
+                <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarSector">
                     <i class="fa-solid fa-square-plus"></i> Agregar 
                 </button>
                 <div class="table-responsive" id="table-responsive">
-                    <table id="tablaInstituciones" class="table table-striped">
+                    <table id="tablaSectores" class="table table-striped">
                         <caption>
-                            Registro de Instituciones
+                            Registro de Sectores Institucionales
                         </caption>
                         <thead>
                             <tr>
                                 <th class="centered " style="width: 15px !important;">#</th>
                                 <th class="centered ">Sector</th>
-                                <th class="centered ">Subsector</th>
-                                <th class="centered ">Nombre Institución</th>
-                                <th class="centered ">Nivel Gobierno</th>
                                 <th class="centered ">Acciones</th>
                             </tr>
                         </thead>
                         <tbody style="vertical-align: middle !important; white-space: nowrap !important;">
-                            {% for inst  in instituciones  %}
+                            {% for sector  in sectores  %}
                             <tr>
-                                <td style="width: 15px !important;"> {{ inst.idinstitucion }} </td>
-                                <td>{{ inst.idsubsector.idsector.nombre }}</td>
-                                <td>{{ inst.idsubsector.nombre }}</td>
-                                <td>{{ inst.nombre }}</td>
-                                <td>{{ inst.nivelgobierno }}</td>
+                                <td style="width: 15px !important;"> {{ sector.idsector }} </td>
+                                <td>{{ sector.nombre }}</td>
                                 <td style="white-space: nowrap !important;">
-                                    <button data-elemento-id="{{ inst.idinstitucion }}"
+                                    <button data-elemento-id="{{ sector.idsector }}"
                                         class="btn btn-sm btn-primary editar-btn"><i class="fa-solid fa-pencil"></i></button>
-                                    <button type="button" data-elemento-id="{{ inst.idinstitucion }}" 
+                                    <button type="button" data-elemento-id="{{ sector.idsector }}" 
                                         class="btn btn-sm btn-danger eliminar-btn"><i class="fa-solid fa-trash-can"></i></button>
                                 </td>
                             </tr>
@@ -85,7 +79,7 @@
          <div class="modal-dialog" >
              <div class="modal-content">
                  <div class="modal-header">
-                     <h5 class="modal-title fs-6" id="eliminarModalLabel">Eliminación Institucional</h5>
+                     <h5 class="modal-title fs-6" id="eliminarModalLabel">Eliminación Sectores</h5>
                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                      </button>
                  </div>
@@ -101,7 +95,7 @@
             <div class="modal-dialog  modal-dialog-scrollable" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title fs-5" id="editarModalLabel">Edición Institucional</h5>
+                        <h5 class="modal-title fs-5" id="editarModalLabel">Edición Sectores</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         </button>
                     </div>
@@ -111,43 +105,22 @@
                 </div>
             </div>
         </div>
-        <!-- Modal Agregar Institución -->
-        <div class="modal fade" id="modalAgregarInstitucion" tabindex="-1" aria-labelledby="modalAgregarLabel" aria-hidden="true">
+        <!-- Modal Agregar Sector -->
+        <div class="modal fade" id="modalAgregarSector" tabindex="-1" aria-labelledby="modalAgregarLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-            <form id="formAgregarInstitucion">
+            <form id="formAgregarSector">
                 {% csrf_token %}
                 <div class="modal-header">
-                <h5 class="modal-title" id="modalAgregarLabel">Agregar Nueva Institución</h5>
+                <h5 class="modal-title" id="modalAgregarLabel">Agregar Nuevo Sector</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="agregar-sector" class="form-label">Sector</label>
-                        <select id="agregar-sector" name="sector" class="form-select" required>
-                            <option value="" selected>Seleccione un sector</option>
-                            {% for sector in sectores %}
-                                <option value="{{ sector.idsector }}">{{ sector.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="agregar-subsector" class="form-label">Subsector</label>
-                        <select id="agregar-subsector" name="subsector" class="form-select" required>
-                            <option value="">Seleccione un subsector</option>
-                        </select>
-                    </div>
+                    
+                  
                     <div class="mb-3">
                         <label for="agregar-nombre" class="form-label">Nombre</label>
                         <input type="text" id="agregar-nombre" name="nombre" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="agregar-nivelgobierno" class="form-label">Nivel de Gobierno</label>
-                        <select id="agregar-nivelgobierno" name="nivelgobierno" class="form-select" required>
-                            <option value="">Seleccione...</option>
-                            <option value="NACIONAL">NACIONAL</option>
-                            <option value="INTERNACIONAL">INTERNACIONAL</option>
-                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -177,7 +150,7 @@
 
 
         $(document).ready(function () {
-            $('#tablaInstituciones').DataTable({
+            $('#tablaSectores').DataTable({
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             }
@@ -185,20 +158,10 @@
             $('.editar-btn').click(function () {
                 var elementoId = $(this).data('elemento-id');
                 $.ajax({
-                    url: '/modifica-institucion/' + elementoId + '/',
+                    url: '/modifica-sector/' + elementoId + '/',
                     success: function (data) {
                         $('#formulario-edicion').html(data);
                         $('#editarModal').modal('show');
-                    }
-                });
-            });
-            $('.eliminaar-btn').click(function () {
-                var elementoId = $(this).data('elemento-id');
-                $.ajax({
-                    url: '/elimina-archivo/' + elementoId + '/',
-                    success: function (data) {
-                        $('#formulario-eliminacion').html(data);
-                        $('#eliminarModal').modal('show');
                     }
                 });
             });
@@ -210,7 +173,7 @@
 
                 Swal.fire({
                     title: '¿Estás seguro?',
-                    text: 'La institución será desactivada.',
+                    text: 'El Sector seleccionado será desactivado.',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Sí, eliminar',
@@ -218,7 +181,7 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
-                            url: '{% url "eliminar_institucion" %}',
+                            url: '{% url "eliminar_sector" %}',
                             method: 'POST',
                             data: {
                                 'id': elementoId,
@@ -231,48 +194,28 @@
                     }
                 });
             });
-            // Cargar subsectores cuando cambia el sector en el modal de AGREGAR
-            $('#agregar-sector').on('change', function () {
-                const idSector = $(this).val();
-                const url = '{% url "obtener_subsectores" %}';
-                $.ajax({
-                url: url,
-                data: { idsector: idSector },
-                success: function (data) {
-                    const $subsector = $('#agregar-subsector');
-                    $subsector.empty().append('<option value="">Seleccione un subsector</option>');
-                    data.forEach(function (item) {
-                        $subsector.append(`<option value="${item.idsubsector}">${item.nombre}</option>`);
-                    });
-                }
-                });
-            });
+            
 
             // Enviar formulario para agregar (AJAX)
-            $('#formAgregarInstitucion').on('submit', function(e) {
+            $('#formAgregarSector').on('submit', function(e) {
             e.preventDefault();
             let csrftoken = $('[name=csrfmiddlewaretoken]').val();
             $.ajax({
-            url: '{% url "institucion_agregar" %}',
+            url: '{% url "sector_agregar" %}',
             method: 'POST',
             data: {
-                'sector': $('#agregar-sector').val(),
-                'subsector': $('#agregar-subsector').val(),
                 'nombre': $('#agregar-nombre').val().toUpperCase(),
-                'nivelgobierno': $('#agregar-nivelgobierno').val().toUpperCase(),
                 'csrfmiddlewaretoken': csrftoken
             },
             success: function (resp) {
                 if (resp.success) {
                     // Limpiar el formulario
-                    $('#formAgregarInstitucion')[0].reset();
-                    // Opcional: también limpia el select de subsector
-                    $('#agregar-subsector').empty().append('<option value="">Seleccione un subsector</option>');
+                    $('#formAgregarSector')[0].reset();
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'Institución registrada',
-                    text: '¡La institución se guardó correctamente!',
+                    title: 'Sector registrado',
+                    text: '¡El Sector se guardó correctamente!',
                     timer: 1800,
                     showConfirmButton: false
                 }).then(() => {
@@ -281,7 +224,7 @@
                 } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error al guardar',
+                    title: 'Error al guardar el sector',
                     text: resp.error || 'Verifica los datos.',
                 });
                 }

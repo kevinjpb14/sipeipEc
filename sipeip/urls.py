@@ -23,9 +23,21 @@ urlpatterns = [
     path('',views.inicio),
     path('inicio/',views.inicio,name='inicio'),
     path('login/', views.login_view, name='login'),
+    #URLS DE CRUD CONFIGURACIÓN INSTITUCIONAL*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     path('conf_institucional/',views.conf_institucional,name='conf_institucional'),
     path('modifica-institucion/<int:idinstitucion>/',views.institucion_modi, name="modi_inst"),#vista para modal de edicion institucional
     path('modificar-institucion/<int:idinstitucion>/',views.institucion_modificar, name="modificar_inst"), #aqui se envia el post para editar la institucion
+    path('ajax/obtener_subsectores/', views.obtener_subsectores, name='obtener_subsectores'),#url que me consulta los subsectores relacionados al sector seleccionado.
+    path('instituciones/eliminar/', views.eliminar_institucion, name='eliminar_institucion'),#url que enlaza eliminar instituciones y cambia estado a flase de las mismas
+    path('instituciones/agregar/', views.institucion_agregar, name='institucion_agregar'),#url que permite agregar nuevas instituciones
+    path('conf_institucional/sectores/', views.sectores, name='sectores'),#url que consulta todos los sectores
+    path('modifica-sector/<int:idsector>/',views.sector_modi, name="modi_sect"),#vista para modal de edicion sector
+    path('modificar-sector/<int:idsector>/',views.sector_modificar, name="modificar_sect"), #aqui se envia el post para editar el sector
+    path('sector/agregar/', views.sector_agregar, name='sector_agregar'),#url que permite agregar nuevas sectores
+    path('sector/eliminar/', views.eliminar_sector, name='eliminar_sector'),#url que enlaza eliminar sector y cambia estado a false de las mismas
+
+
+    #FIN URLS DE CRUD CONFIGURACIÓN INSTITUCIONAL*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registrar_usuario, name='registro'),
