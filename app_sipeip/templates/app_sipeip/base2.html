@@ -55,7 +55,7 @@
                                     <ul class="nav flex-column ms-3">
                                         {% for sub in modulo.submenu %}
                                             <li class="nav-item">
-                                                <a class="nav-link" href="{{ sub.url }}">{{ sub.nombre }}</a>
+                                                <a class="nav-link" href="{{ sub.url }}" {% if sub.nombre == 'Registrar' %}target="_blank"{% endif %}>{{ sub.nombre }}</a>
                                             </li>
                                         {% endfor %}
                                     </ul>

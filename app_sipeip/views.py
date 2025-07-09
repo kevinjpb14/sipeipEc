@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .models import Instituciones,InstitucionSector,InstitucionSubsector
+from .models import Instituciones,InstitucionSector,InstitucionSubsector,Roles,Usuario,Permisos
 from django.http import JsonResponse
 from datetime import datetime
 
@@ -130,7 +130,14 @@ def obtener_modulos_por_usuario(usuario):
     modulos = []
     if usuario.idrol.nombre == 'Administrador':
         modulos = [
-            {'nombre': 'Usuarios', 'url': '/usuarios/', 'icono': 'fa-user'},
+            {
+                'nombre': 'Usuarios', 
+                'icono': 'fa-user',
+                'submenu': [
+                    {'nombre': 'Consultar', 'url': '/usuarios/'},
+                    {'nombre': 'Registrar', 'url': '/registro/'},
+                ]
+            },
             {
              'nombre': 'Configuración Institucional', 
              'icono': 'fa-building-columns',
@@ -165,6 +172,90 @@ def inicio(request):
     modulos = obtener_modulos_por_usuario(usuario)
     return render(request, 'app_sipeip/inicio.html', {'modulos': modulos})
 
+#CRUD GESTION DE USUARIOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+#vista de configuracion institucional principal, donde muestra el datatable con las consultas 
+@login_required
+def usuarios(request):
+    if request.method== 'GET':
+        usuario = request.user.usuario
+        modulos = obtener_modulos_por_usuario(usuario)
+        usuarios = Usuario.objects.filter(estado=True)
+        roles = Roles.objects.filter(estado=True)
+        permisos = Permisos.objects.filter(estado=True)
+        return render(request,'app_sipeip/usuarios/usuarios.html',{'usuarios': usuarios,'modulos': modulos,'roles': roles,'permisos':permisos})
+
+
+#vista para modal de edicion de institucion, donde mediante el id obtiene los campos para editar
+@login_required
+def usuario_modi(request,idusuario):
+   usuario=get_object_or_404(Usuario,pk=idusuario)
+   roles = Roles.objects.filter(estado=True)
+   permisos = Permisos.objects.filter(estado=True)
+   
+   return render(request,'app_sipeip/usuarios/modi_usuario.html',{'usuario':usuario,'roles': roles,'permisos': permisos})
+
+#vista para post de edicion de institucion, donde mediante el id actualiza
+@login_required
+def usuario_modificar(request,idusuario):
+     if request.method == 'POST':
+        valor_deseado = request.POST.get('valor_deseado', None)
+        valor_deseado2 = request.POST.get('valor_deseado2', None)
+    
+        if valor_deseado:
+         # Realiza la verificación en la base de datos
+            registro_existe = Usuario.objects.filter(identificacion=valor_deseado).exists()
+            if Usuario.objects.filter(identificacion=valor_deseado,idusuario = valor_deseado2).exists():
+                registro_existe= False
+            return JsonResponse({'existe': registro_existe})
+        else:
+            print(request.POST)
+            inst= get_object_or_404(Usuario,pk=idusuario)
+            cedula = request.POST.get('input-cedula')
+            nombres = request.POST.get('input-nombres')
+            apellidos = request.POST.get('input-apellidos')
+            username = request.POST.get('input-username')
+            mail = request.POST.get('input-mail')
+            idrol= request.POST.get('select-rol')
+            idpermiso= request.POST.get('select-permisos')
+            inst.identificacion = cedula
+            inst.nombres = nombres
+            inst.apellidos = apellidos
+            #instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+            inst.idrol =  Roles.objects.get(pk=idrol)#instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+            inst.idpermiso =  Permisos.objects.get(pk=idpermiso)#instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+            #fin instancia
+            inst.username=username
+            inst.mail = mail
+            inst.save()
+            #hago lo mismo para la otra tabla de auth user de django
+            inst2= get_object_or_404(Usuario,pk=idusuario)
+
+            user = User.objects.get(id=inst2.user.id)
+            user.username = username
+            user.first_name = nombres
+            user.last_name = apellidos
+            user.email=mail
+            user.save()
+            messages.success(request, 'Los datos se han Modificado exitosamente.')
+            return redirect('usuarios')
+
+@login_required
+def eliminar_usuario(request):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        inst = Usuario.objects.get(idusuario=id)
+        inst.estado = False
+        inst.save()
+        inst2= get_object_or_404(Usuario,pk=id)
+
+        user = User.objects.get(id=inst2.user.id)
+        user.is_active= False
+        user.save()
+
+        messages.success(request, 'Los datos se ha eliminado exitosamente.')
+        return JsonResponse({'success': True})
+#FIN CRUD USUARIOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
 #*-*-*-*-*-*-*-*-*-*-*-*CRUD CONFIGURACION INSTITUCIONAL-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 #vista de consulta de sectores
 @login_required
@@ -182,7 +273,7 @@ def sector_modi(request,idsector):
    
    return render(request,'app_sipeip/institucional/modi_sector.html',{'sector': sector})
 
-#vista para post de edicion de institucion, donde mediante el id actualiza
+#vista para post de edicion de Sector, donde mediante el id actualiza
 @login_required
 def sector_modificar(request,idsector):
      if request.method == 'POST':
@@ -191,8 +282,8 @@ def sector_modificar(request,idsector):
     
         if valor_deseado:
          # Realiza la verificación en la base de datos
-            registro_existe = Instituciones.objects.filter(nombre=valor_deseado).exists()
-            if Instituciones.objects.filter(nombre=valor_deseado,idinstitucion = valor_deseado2).exists():
+            registro_existe = InstitucionSector.objects.filter(nombre=valor_deseado).exists()
+            if InstitucionSector.objects.filter(nombre=valor_deseado,idinstitucion = valor_deseado2).exists():
                 registro_existe= False
             return JsonResponse({'existe': registro_existe})
         else:
@@ -205,7 +296,7 @@ def sector_modificar(request,idsector):
             messages.success(request, 'Los datos se han Modificado exitosamente.')
             return redirect('sectores')
 
-#AGREGAR NUEVA INSTITUCION  
+#AGREGAR NUEVO SECTOR 
 @login_required
 def sector_agregar(request):
     if request.method == 'POST':
@@ -226,6 +317,7 @@ def sector_agregar(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
 #elimina el sector seleccionado, lo cambia aestado false
 @login_required
 def eliminar_sector(request):
@@ -236,6 +328,84 @@ def eliminar_sector(request):
         inst.save()
         messages.success(request, 'Los datos se ha eliminado exitosamente.')
         return JsonResponse({'success': True})
+
+#vista de Subsectores principal, donde muestra el datatable con las consultas 
+@login_required
+def subsectores(request):
+    if request.method== 'GET':
+        usuario = request.user.usuario
+        modulos = obtener_modulos_por_usuario(usuario)
+        subsectores = InstitucionSubsector.objects.filter(estado=True)
+        sectores = InstitucionSector.objects.filter(estado=True)
+        return render(request,'app_sipeip/institucional/subsectores.html',{'subsectores': subsectores,'modulos': modulos,'sectores': sectores})
+
+
+#vista para modal de edicion de Subsector, donde mediante el id obtiene los campos para editar
+@login_required
+def subsector_modi(request,idsubsector):
+   subsector=get_object_or_404(InstitucionSubsector,pk=idsubsector)
+   sectores = InstitucionSector.objects.filter(estado=True)
+   
+   return render(request,'app_sipeip/institucional/modi_subsector.html',{'subsector':subsector,'sectores': sectores})
+
+#vista para post de edicion de subsectores, donde mediante el id actualiza
+@login_required
+def subsector_modificar(request,idsubsector):
+     if request.method == 'POST':
+        valor_deseado = request.POST.get('valor_deseado', None)
+        valor_deseado2 = request.POST.get('valor_deseado2', None)
+    
+        if valor_deseado:
+         # Realiza la verificación en la base de datos
+            registro_existe = InstitucionSubsector.objects.filter(nombre=valor_deseado).exists()
+            if InstitucionSubsector.objects.filter(nombre=valor_deseado,idsubsector = valor_deseado2).exists():
+                registro_existe= False
+            return JsonResponse({'existe': registro_existe})
+        else:
+            print(request.POST)
+            inst= get_object_or_404(InstitucionSubsector,pk=idsubsector)
+            nombre = request.POST.get('input-nombre')
+            idsect= request.POST.get('select-sect')
+            inst.nombre = nombre
+            #instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+            inst.idsector =  InstitucionSector.objects.get(pk=idsect)#instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+            #fin instancia
+            inst.save()
+            messages.success(request, 'Los datos se han Modificado exitosamente.')
+            return redirect('subsectores')
+@login_required
+def eliminar_subsector(request):
+    if request.method == 'POST':
+        id = request.POST.get('id')
+        inst = InstitucionSubsector.objects.get(idsubsector=id)
+        inst.estado = False
+        inst.save()
+        messages.success(request, 'Los datos se ha eliminado exitosamente.')
+        return JsonResponse({'success': True})
+
+#AGREGAR NUEVO SUBSECTOR  
+@login_required
+def subsector_agregar(request):
+    if request.method == 'POST':
+        idsector = request.POST.get('sector')
+        nombre = request.POST.get('nombre')
+        if not (idsector and nombre):
+            return JsonResponse({'success': False, 'error': 'Todos los campos son requeridos.'})
+
+        try:
+            #instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+            sector_obj = InstitucionSector.objects.get(pk=idsector)
+            #Fin Instancia
+            nueva = InstitucionSubsector(
+                idsector=sector_obj,
+                nombre=nombre.upper(),
+                estado=True,
+            )
+            nueva.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
 #vista de configuracion institucional principal, donde muestra el datatable con las consultas 
 @login_required
@@ -253,8 +423,8 @@ def conf_institucional(request):
 def institucion_modi(request,idinstitucion):
    institucion=get_object_or_404(Instituciones,pk=idinstitucion)
    print(institucion.idsubsector.idsubsector)
-   sectores = InstitucionSector.objects.all()
-   subsectores = InstitucionSubsector.objects.all()
+   sectores = InstitucionSector.objects.filter(estado=True)
+   subsectores = InstitucionSubsector.objects.filter(estado=True)
    
    return render(request,'app_sipeip/institucional/modi_institucion.html',{'institucion':institucion,'sectores': sectores,'subsectores': subsectores})
 

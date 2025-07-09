@@ -30,15 +30,28 @@ urlpatterns = [
     path('ajax/obtener_subsectores/', views.obtener_subsectores, name='obtener_subsectores'),#url que me consulta los subsectores relacionados al sector seleccionado.
     path('instituciones/eliminar/', views.eliminar_institucion, name='eliminar_institucion'),#url que enlaza eliminar instituciones y cambia estado a flase de las mismas
     path('instituciones/agregar/', views.institucion_agregar, name='institucion_agregar'),#url que permite agregar nuevas instituciones
+    #SECTORES*-*-*-*-*-*-*
     path('conf_institucional/sectores/', views.sectores, name='sectores'),#url que consulta todos los sectores
     path('modifica-sector/<int:idsector>/',views.sector_modi, name="modi_sect"),#vista para modal de edicion sector
     path('modificar-sector/<int:idsector>/',views.sector_modificar, name="modificar_sect"), #aqui se envia el post para editar el sector
     path('sector/agregar/', views.sector_agregar, name='sector_agregar'),#url que permite agregar nuevas sectores
     path('sector/eliminar/', views.eliminar_sector, name='eliminar_sector'),#url que enlaza eliminar sector y cambia estado a false de las mismas
-
-
+    #FIN SECTORES *-*-*-*-*-*
+    #SUBSECTORES*-*-*-*-*-*-*
+    path('conf_institucional/subsectores/', views.subsectores, name='subsectores'),#url que consulta todos los subsectores
+    path('modifica-subsector/<int:idsubsector>/',views.subsector_modi, name="modi_subsect"),#vista para modal de edicion subsector
+    path('modificar-subsector/<int:idsubsector>/',views.subsector_modificar, name="modificar_subsect"), #aqui se envia el post para editar el subsector
+    path('subsector/agregar/', views.subsector_agregar, name='subsector_agregar'),#url que permite agregar nuevas subsectores
+    path('subsector/eliminar/', views.eliminar_subsector, name='eliminar_subsector'),#url que enlaza eliminar subsector y cambia estado a false de las mismas
+    #FIN SUBSECTORES *-*-*-*-*-*
     #FIN URLS DE CRUD CONFIGURACIÓN INSTITUCIONAL*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
+    
+    #URLS CRUD GESTION DE USUARIOS*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    path('usuarios/',views.usuarios,name='usuarios'),
+    path('modifica-usuario/<int:idusuario>/',views.usuario_modi, name="modi_usu"),#vista para modal de edicion usuarios
+    path('modificar-usuario/<int:idusuario>/',views.usuario_modificar, name="modificar_usu"), #aqui se envia el post para editar al usuario
+    path('usuarios/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),#url que enlaza eliminar usuarios y cambia estado a false de las mismas
+    #FIN DE URLS CRUD GESTION DE USUARIOS*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registrar_usuario, name='registro'),
     path('activar/<uidb64>/<token>/', views.activar_cuenta, name='activar_cuenta'),

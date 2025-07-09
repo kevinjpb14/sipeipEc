@@ -1,0 +1,145 @@
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Sector</title>
+</head>
+
+<body>
+
+    <form id="formulario-modi" method="post" action="{% url 'modificar_usu' usuario.idusuario %}">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="nombre">ID</label>
+            <input type="text" class="form-control" id="id" name="id" value="{{ usuario.idusuario }}" readonly>
+        </div>
+        <fieldset>
+            <div class="row">
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Cedula</p>
+                        <input class="form-control" name="input-cedula" id="input-cedula" type="text"
+                            placeholder="Coloque el numero de cedula" value="{{usuario.identificacion }}"
+                            aria-label="Disabled input example" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Nombre de Usuario</p>
+                        <input class="form-control" name="input-username" id="input-username" type="text"
+                            placeholder="Coloque el username" value="{{usuario.username }}"
+                            aria-label="Disabled input example" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Nombres</p>
+                        <input class="form-control" name="input-nombres" id="input-nombres" type="text"
+                            placeholder="Coloque los Nombres" value="{{usuario.nombres }}"
+                            aria-label="Disabled input example" required>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Apellidos</p>
+                        <input class="form-control" name="input-apellidos" id="input-apellidos" type="text"
+                            placeholder="Coloque los Apellidos" value="{{usuario.apellidos }}"
+                            aria-label="Disabled input example" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Correo Electrónico</p>
+                        <input class="form-control" name="input-mail" id="input-mail" type="email"
+                            placeholder="Coloque el correo electronico" value="{{usuario.mail }}"
+                            aria-label="Disabled input example" required>
+                    </div>
+                </div>
+
+            </div>
+        </fieldset>
+        <fieldset>
+            <div class="row">
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Rol</p>
+                        <select name="select-rol" id="select-rol" class="form-select " aria-label="Default select example"
+                            required>
+                            <!-- <option selected disabled value="{{institucion.idsector}}">{{institucion.idsubsector.idsector.nombre}}</option> -->
+                            {% for rol in roles %}
+                            <!-- <option value="{{sector.idsector}}">{{sector.nombre}}</option> -->
+                            <option value="{{ rol.idrol }}" {% if usuario.idrol.idrol == rol.idrol %}selected{% endif %}>{{ rol.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="select-archivo">
+                        <p>Permiso de:</p>
+                        <select name="select-permisos" id="select-permisos" class="form-select " aria-label="Default select example"
+                            required>
+                            <!-- <option selected disabled value="{{institucion.idsector}}">{{institucion.idsubsector.idsector.nombre}}</option> -->
+                            {% for permiso in permisos %}
+                            <!-- <option value="{{sector.idsector}}">{{sector.nombre}}</option> -->
+                            <option value="{{ permiso.idpermiso }}" {% if usuario.idpermiso.idpermiso == permiso.idpermiso %}selected{% endif %}>{{ permiso.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+  
+        <br>
+        <div style="text-align: center;">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-success" id="verificar" >Guardar cambios</button>
+            </div>
+
+        </div>
+    </form>
+
+    <script type="text/javascript" charset="utf-8">
+        // AJAX QUE ME PERMITE VALIDAR SI EXISTE EL VALOR CODIFICADO Y NO PERMITE EL GUARDADO Y MANTIENE EL GET METHOD
+        $(document).ready(function () {
+            $('#formulario-modi').on('submit', function (e) {
+                e.preventDefault(); // Evita que se envíe el formulario por defecto
+                var valorDeseado = $('#input-cedula').val();
+                var valorDeseado2 = $('#id').val();
+                // Realiza la solicitud AJAX al servidor
+                $.ajax({
+                    type: 'POST',
+                    url: '/modificar-usuario/' + valorDeseado2 + '/', // Reemplaza con la URL correcta
+                    data: {
+                        'valor_deseado': valorDeseado,
+                        'valor_deseado2': valorDeseado2,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'  // Asegurarnos de incluir el token CSRF
+                    },
+                    success: function (response) {
+                        if (response.existe) {
+                            alert('El registro codificado: ' + valorDeseado + ' ya existe en la base de datos.');
+                        }
+                        else {
+                            // Si el registro no existe, puedes permitir el envío del formulario
+                            $('#formulario-modi').off('submit'); // Elimina el manejador para que el formulario se envíe
+                            $('#formulario-modi').submit(); // Envía el formulario
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
+{% endblock %}
