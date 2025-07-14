@@ -1,0 +1,76 @@
+.select-menu {
+    width: 220px;
+}
+
+a {
+    text-decoration: none; /* Quita la subrayado del enlace */
+    color: inherit; /* Hereda el color del texto del elemento padre */
+    outline: none; /* Elimina el contorno al hacer clic en el enlace */
+}
+
+.select-menu .select-btn {
+    position: absolute;
+    display: flex;
+    height: 35px;
+    right: 0;
+    top: 0;
+    font-family: system-ui;
+    background: #716087;
+    padding: 0px 15px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: capitalize;
+    border-radius: 15px;
+    align-items: normal;
+    cursor: pointer;
+    justify-content: center;
+    box-shadow: 0 0 1px rgba(137, 98, 245, .5);
+}
+.select-btn i{
+    font-size: 25px;
+    transition: .3s ease;
+}
+.select-menu.active .select-btn i {
+    transform: rotate(-180deg);
+}
+.select-menu .options {
+    position: absolute;
+    padding: 20px;
+    top: 10px;
+    right: 1px;
+    margin-top: 25px;
+    border-radius: 15px;
+    background: #eeebf4;
+    border: 3px solid #b196d3;
+    box-shadow: 0 0 10px rgba(137, 98, 245, .2);
+    transition: .5s ease;
+    visibility: hidden;
+    opacity: 0;
+}
+.select-menu.active .options {
+    visibility: visible;
+    opacity: 1;
+}
+.options .option {
+    display: flex;
+    height: 55px;
+    cursor: pointer;
+    padding: 0 20px;
+    border-radius: 15px;
+    align-items: center;
+    background: #eeebf4;
+    transition: .5s ease;
+    justify-content: center;
+}
+.options .option:hover {
+    background: #e3dff2;
+}
+.option i {
+    font-size: 30px;
+    margin-right: 12px;
+}
+.option .option-text {
+    font-size: 15px;
+    color: #231a42; 
+}

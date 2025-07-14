@@ -1,0 +1,93 @@
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;  /* Antes estaba center */
+  justify-content: center;
+  padding-top: 40px; /* agrega un espacio arriba */
+  /* background: linear-gradient(120deg, #14477b 0%, #5db3f5 100%); */
+}
+
+.registro-page .main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.registro-page .card {
+  background: #fff;
+  padding: 3rem 2.5rem 2.3rem 2.5rem;
+  border-radius: 1.7rem;
+  box-shadow: 0 8px 40px rgba(18, 54, 107, 0.13);
+  min-width: 350px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.registro-page .form-input {
+  width: 100%;
+  margin-bottom: 1.2rem;
+  border: none;
+  border-bottom: 1.7px solid #e4e9f2;
+  background: transparent;
+  padding: 0.85rem 0.5rem;
+  font-size: 1.07rem;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.registro-page .form-input:focus {
+  border-color: #5db3f5;
+}
+.registro-page .btn {
+  background: #3769ad;
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.9rem 0;
+  margin-top: 1.3rem;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.17s;
+}
+.registro-page .btn:hover {
+  background: #14477b;
+}
+.registro-page .error-msg {
+  margin-top: 1rem;
+  color: #e53935;
+  font-size: 1rem;
+}
+.form-row {
+  display: flex;
+  gap: 1.3rem;
+  margin-bottom: 1.2rem;
+}
+
+.form-group {
+  flex: 1;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.85rem 0.5rem;
+  border: none;
+  border-bottom: 1.7px solid #e4e9f2;
+  background: transparent;
+  font-size: 1.07rem;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.form-input:focus {
+  border-color: #5db3f5;
+}
+@media (max-width: 600px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}

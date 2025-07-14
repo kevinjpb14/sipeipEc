@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap');
+
+button{
+    padding: 12px 48px;
+    border-radius: 50px;
+    color: white;
+    margin-top: 1rem;
+    cursor: pointer;
+    outline: none;
+    border-width: 0;
+    background-color: #1A1B27;
+    font-weight: 600;
+    width: 100%;
+    opacity: 0.8;
+}
+.imagen-ecuador {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.imagen-ecuador img {
+    max-width: 160px;  /* ajusta según el tamaño deseado */
+    height: auto;
+    opacity: 0.85;
+}
+
+input::placeholder {
+    opacity: 0.7;
+}
+
+button:hover{
+    opacity: 1;
+}
+.button-form {
+    display: flex;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.signup{
+    padding-left: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    color: #21D4FD;
+
+}
+.signup:hover{
+    opacity: 0.8;
+}
+
+body{
+    font-family: 'Nunito', sans-serif;
+    background-image: url('/static/app_sipeip/images/fondo.jpg');
+    background-size: cover;
+    background-attachment: fixed ; 
+    background-position:center top ; 
+    background-repeat:repeat;
+    height: 100vh;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.logo {
+    height: 42px;
+    border-radius: 5px;
+    opacity: 0.3;
+}
+
+.rojo{
+    color: red;
+    text-align: center;
+}
+.logo:hover{
+    opacity: 0.7;
+}
+
+nav{
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 32px;
+}
+.container{
+    display: flex;
+    justify-content: space-around;
+}
+
+.form{
+    display: flex;
+    justify-content: center;
+    padding-top: 3rem;
+    opacity: 0.7;
+}
+.sub-form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 23vw;
+    height: 62vh;
+    border-radius: 12px;
+    box-shadow: 1px 1px 50px #000;
+    background-color: white;
+    
+}
+
+h2{
+    margin: 1.5rem 0 2rem 0;
+    text-align: center;
+}
+label{
+    padding-left: 16px;
+}
+input{
+    display: flex;
+    border-radius: 50px;
+    border-style: double;
+    outline: none;
+    margin-top: 8px;
+    padding: 12px 24px;
+    width: 250px;
+    background-color: #EAEEED;
+    position: relative;
+}
+input:focus{
+    opacity: 0.7;
+}
+
+.powered{
+    margin-right: 5px;
+    text-align: right;
+    color: aliceblue;
+    font-size: x-small;
+    user-select: none;
+    text-shadow:
+    -1px -1px 0 #000, /* Sombra superior izquierda */
+    1px -1px 0 #000, /* Sombra superior derecha */
+    -1px 1px 0 #000, /* Sombra inferior izquierda */
+    1px 1px 0 #000; /* Sombra inferior derecha */
+}

@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'app_sipeip/css/signup.css' %}" />
+
+    <link rel="shortcut icon" type="image/x-icon" sizes="16x16" href="{% static 'favicon.ico' %}" />
+    <title>Registro de Usuarios SIPeIP+</title>
+</head>
+
+<body>
+
+    {% block content %}
+
+    <nav class="container">
+        <div class="logo-box">
+            <img src="{% static 'app_sipeip/images/logo.png' %}" alt="CELEC EP - CSUR" class="logo">
+        </div>
+    </nav>
+    <div class="form">
+        <form method="POST">
+            {% csrf_token %}
+             <h2>Registro de usuario</h2>
+
+            <input type="text" name="username" placeholder="Usuario" required>
+            <input type="email" name="email" placeholder="Correo" required>
+            <input type="text" name="identificacion" placeholder="Cédula" required>
+            <input type="text" name="nombres" placeholder="Nombres" required>
+            <input type="text" name="apellidos" placeholder="Apellidos" required>
+            <button type="submit">Registrar</button>
+            {% if error %}<p style="color:red">{{ error }}</p>{% endif %}
+        </form>
+    </div>
+    {% endblock %}
+</body>
+
+</html>

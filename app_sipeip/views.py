@@ -18,12 +18,14 @@ from django.urls import reverse
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib import messages
-from .models import Instituciones,InstitucionSector,InstitucionSubsector,Roles,Usuario,Permisos
+from .models import Instituciones,InstitucionSector,InstitucionSubsector,Roles,Usuario,Permisos,ObjetivoEstrategico,PlanNacionalDesarrollo,ObjetivosDesarrolloSostenible,ObjetivoEstrategicoHistory,AlineacionObjetivoOds
 from django.http import JsonResponse
 from datetime import datetime
 
 @login_required(login_url='login')  # Redirige al login si no está autenticado
 def registrar_usuario(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -32,11 +34,13 @@ def registrar_usuario(request):
         identificacion = request.POST.get('identificacion')
 
         if User.objects.filter(username=username).exists():
-            return render(request, 'app_sipeip/registro.html', {'error': 'El usuario ya existe'})
+            return render(request, 'app_sipeip/registro.html', {'error': 'El usuario ya existe','modulos': modulos})
         
         if User.objects.filter(email=email).exists():
-            return render(request, 'app_sipeip/registro.html', {'error': 'El correo ya se encuentra registrado'})
-
+            return render(request, 'app_sipeip/registro.html', {'error': 'El correo ya se encuentra registrado','modulos': modulos})
+        
+        if Usuario.objects.filter(identificacion=identificacion).exists():
+            return render(request, 'app_sipeip/registro.html', {'error': 'La Cédula ya se encuentra registrada','modulos': modulos})
         # Generar contraseña temporal
         temp_password = get_random_string(length=10)
 
@@ -76,9 +80,10 @@ def registrar_usuario(request):
             fail_silently=False,
         )
 
-        return render(request, 'app_sipeip/registro_exitoso.html')
-
-    return render(request, 'app_sipeip/registro.html')
+        #return render(request, 'app_sipeip/registro_exitoso.html')
+        return render(request, 'app_sipeip/registro.html', {'registro_exitoso': True,'modulos': modulos})
+    if request.method == 'GET':
+     return render(request, 'app_sipeip/registro.html',{'modulos': modulos})
 
 def activar_cuenta(request, uidb64, token):
     try:
@@ -506,6 +511,151 @@ def institucion_agregar(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 #*-*-*-*-*-*-*-*-*-*-*-*FIN CRUD CONFIGURACION INSTITUCIONAL-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+#*-*-*-*-*-*-*-*-*-*-*-*OBJETIVOS ESTRATEGICOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+@login_required
+def objetivo_estrategico_list(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
+    objetivos = ObjetivoEstrategico.objects.select_related('idpnd').all()
+    pn_desarrollos = PlanNacionalDesarrollo.objects.filter(estado=True)
+    ods_list = ObjetivosDesarrolloSostenible.objects.filter(estado=True).order_by('numeroods')
+    return render(request, 'app_sipeip/objetivos/estrategico_list.html', {'modulos': modulos,'objetivos': objetivos,'pn_desarrollos': pn_desarrollos,'ods_list': ods_list})
+
+#AGREGAR OBJETIVOS ESTRATEGICOS
+@login_required
+def objetivo_estrategico_agregar(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').upper()
+        descripcion = request.POST.get('descripcion', '').upper()
+        idpnd = request.POST.get('idpnd')
+        ods_list = request.POST.getlist('ods[]')  # JS enviará como array
+        user = request.user
+
+        if not nombre or not descripcion or not idpnd or not ods_list:
+            return JsonResponse({'success': False, 'error': 'Todos los campos son requeridos.'})
+
+        try:
+            pnd = PlanNacionalDesarrollo.objects.get(pk=idpnd)
+            objetivo = ObjetivoEstrategico.objects.create(
+                nombre=nombre,
+                descripcion=descripcion,
+                idpnd=pnd,
+                fecharegistro=timezone.now(),
+                estado=True
+            )
+            # Guardar alineación ODS
+            for idods in ods_list:
+                ods_obj = ObjetivosDesarrolloSostenible.objects.get(pk=idods)
+                AlineacionObjetivoOds.objects.create(idobjest=objetivo, idods=ods_obj)
+            # Guardar historial
+            ObjetivoEstrategicoHistory.objects.create(
+                idobjest=objetivo,
+                nombre=nombre,
+                descripcion=descripcion,
+                fechainicio=timezone.now(),
+                numversion=1,
+                cambiadoporusr=user.usuario.idusuario if hasattr(user, 'usuario') else None,
+                fechacambio=timezone.now(),
+                idpnd=idpnd
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+#obtener ODS alineados Al objetivo estrategico seleccionado
+@login_required
+def objetivo_estrategico_ods(request):
+    idobjest = request.GET.get('idobjest')
+    ods_ids = list(AlineacionObjetivoOds.objects.filter(idobjest=idobjest).values_list('idods', flat=True))
+    return JsonResponse({'ods': ods_ids})
+
+#vista para enviar edicion de objetivo estrategico
+@login_required
+def objetivo_estrategico_edit(request):
+    if request.method == 'POST':
+        idobjest = request.POST.get('idobjest')
+        nombre = request.POST.get('nombre', '').upper()
+        descripcion = request.POST.get('descripcion', '').upper()
+        idpnd = request.POST.get('idpnd')
+        ods_list = request.POST.getlist('ods[]')
+        user = request.user
+
+        if not idobjest or not nombre or not descripcion or not idpnd or not ods_list:
+            return JsonResponse({'success': False, 'error': 'Todos los campos son requeridos.'})
+
+        try:
+            objetivo = ObjetivoEstrategico.objects.get(pk=idobjest)
+            pnd = PlanNacionalDesarrollo.objects.get(pk=idpnd)
+
+            # Actualiza campos
+            objetivo.nombre = nombre
+            objetivo.descripcion = descripcion
+            objetivo.idpnd = pnd
+            objetivo.save()
+
+            # Actualizar ODS alineados
+            AlineacionObjetivoOds.objects.filter(idobjest=objetivo).delete()
+            for idods in ods_list:
+                ods_obj = ObjetivosDesarrolloSostenible.objects.get(pk=idods)
+                AlineacionObjetivoOds.objects.create(idobjest=objetivo, idods=ods_obj)
+
+            # Guardar versión en historial
+            versiones = ObjetivoEstrategicoHistory.objects.filter(idobjest=objetivo).count()
+            ObjetivoEstrategicoHistory.objects.create(
+                idobjest=objetivo,
+                nombre=nombre,
+                descripcion=descripcion,
+                fechainicio=timezone.now(),
+                numversion=versiones + 1,
+                cambiadoporusr=user.usuario.idusuario if hasattr(user, 'usuario') else None,
+                fechacambio=timezone.now(),
+                idpnd=idpnd
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+#historial de objetivos estrategicos
+@login_required
+def objetivo_estrategico_history(request):
+    idobjest = request.GET.get('idobjest')
+    historial = ObjetivoEstrategicoHistory.objects.filter(idobjest=idobjest).order_by('-numversion')
+    history_list = []
+    for h in historial:
+        # Obtener usuario si existe
+        usuario = Usuario.objects.filter(idusuario=h.cambiadoporusr).first()
+        nombre_usuario = f"{usuario.nombres} {usuario.apellidos}" if usuario else ''
+        # Obtener nombre PND si existe
+        pnd = PlanNacionalDesarrollo.objects.filter(idpnd=h.idpnd).first()
+        nombre_pnd = pnd.nombreeje if pnd else ''
+        history_list.append({
+            'numversion': h.numversion,
+            'nombre': h.nombre,
+            'descripcion': h.descripcion,
+            'fechacambio': h.fechacambio.strftime('%d/%m/%Y %H:%M') if h.fechacambio else '',
+            'usuario': nombre_usuario,
+            'pnd': nombre_pnd
+        })
+    return JsonResponse({'success': True, 'historial': history_list})
+
+#eliminar objetivos estrategicos
+
+@login_required
+def objetivo_estrategico_delete(request):
+    if request.method == 'POST':
+        idobjest = request.POST.get('idobjest')
+        try:
+            objetivo = ObjetivoEstrategico.objects.get(pk=idobjest)
+            objetivo.estado = False
+            objetivo.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+#*-*-*-*-*-*-*-*-*-*-*-*FIN OBJETIVOS ESTRATEGICOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 @never_cache
 def login_view(request):

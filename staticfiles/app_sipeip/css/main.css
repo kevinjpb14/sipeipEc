@@ -1,0 +1,62 @@
+.centered{
+ text-align: center !important;
+ vertical-align: middle !important;
+}
+.input-arch{
+    display: block;
+    margin-left: 2vh;
+    border-radius: 7px;
+    padding: 5px;
+}
+.div-form-arch > p {
+    margin-left: 2vh;
+}
+.div-form-arch > h3 {
+    margin-top: 2vh;
+    text-align: center;
+}
+
+.form-archivo{
+    justify-content: center;
+}
+ .navbar {
+    color: white;
+    margin-top: 2px;
+}
+.select-archivo{
+    text-align: center; 
+}
+.frm-archivo{
+    justify-content: center;
+    display: flex;
+    align-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.input {
+    background-color: #716087;
+    text-align: center;
+    display: block;
+}
+.tabla
+{
+    text-align: -webkit-center;
+}
+table
+{
+ width: 50%;
+ align-items: center;
+}
+th, td {
+    width: 25%;
+    text-align: center;
+ }
+
+p {
+    margin-top: 1rem !important; 
+    margin-bottom: 0.3rem !important; 
+}
+.denegado {
+width: 200px;
+height: 200px;
+}

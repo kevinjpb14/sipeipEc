@@ -52,6 +52,17 @@ urlpatterns = [
     path('modificar-usuario/<int:idusuario>/',views.usuario_modificar, name="modificar_usu"), #aqui se envia el post para editar al usuario
     path('usuarios/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),#url que enlaza eliminar usuarios y cambia estado a false de las mismas
     #FIN DE URLS CRUD GESTION DE USUARIOS*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    # URLS OBJETIVOS ESTRATEGICOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    path('objetivos/estrategicos/', views.objetivo_estrategico_list, name='objetivo_estrategico_list'),
+    path('objetivos/estrategicos/agregar/', views.objetivo_estrategico_agregar, name='objetivo_estrategico_agregar'),
+    path('objetivos/estrategicos/ods/', views.objetivo_estrategico_ods, name='objetivo_estrategico_ods'),
+    path('objetivos/estrategicos/editar/', views.objetivo_estrategico_edit, name='objetivo_estrategico_edit'),
+    path('objetivos/estrategicos/history/', views.objetivo_estrategico_history, name='objetivo_estrategico_history'),
+    path('objetivos/estrategicos/eliminar/', views.objetivo_estrategico_delete, name='objetivo_estrategico_delete'),
+
+
+    #FIN DE URLS OBJETIVOS ESTRATEGICOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
     path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registrar_usuario, name='registro'),
     path('activar/<uidb64>/<token>/', views.activar_cuenta, name='activar_cuenta'),

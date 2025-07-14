@@ -1,12 +1,13 @@
+{% extends 'app_sipeip/base2.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Registro Exitoso</title>
-    <link rel="stylesheet" href="{% static 'app_sipeip/css/login.css' %}">
-</head>
-<body>
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'app_sipeip/css/registrar.css' %}">
+{% endblock %}
+{% block extra_head %}
+  <meta http-equiv="refresh" content="4;url={% url 'inicio' %}">
+{% endblock %}
+{% block title %}Registro de usuario{% endblock %}
     <form action="{% url 'login' %}" method="get">
     <div class="login-container">
         <div class="login-box">
@@ -16,5 +17,3 @@
         </div>
     </div>
     </form>
-</body>
-</html>
