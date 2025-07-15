@@ -561,6 +561,7 @@ def objetivo_estrategico_agregar(request):
             )
             return JsonResponse({'success': True})
         except Exception as e:
+            print('Error '+str(e))
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 #obtener ODS alineados Al objetivo estrategico seleccionado

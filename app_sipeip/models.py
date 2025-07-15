@@ -294,6 +294,7 @@ class ObjetivosDesarrolloSostenible(models.Model):
     numeroods = models.IntegerField(db_column='numeroOds', blank=True, null=True)  # Field name made lowercase.
     nombre = models.CharField(max_length=255, blank=True, null=True)
     descripcion = models.CharField(max_length=255, blank=True, null=True)
+    imagen = models.CharField(max_length=255, blank=True, null=True)  # Nueva línea
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
