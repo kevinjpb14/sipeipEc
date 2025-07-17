@@ -1,0 +1,312 @@
+{% extends 'app_sipeip/base2.html' %}
+{% load static %}
+{% block title %}ODS{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta Archivos</title>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css' rel='stylesheet'>
+    <link href='https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css' rel='stylesheet'>
+    <link href='https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<body>
+
+    <div class="container mt-4">
+        {% if messages %}
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+            </symbol>
+        </svg>
+        <div id="success-message" class="alert alert-success align-items-center " role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+                <use xlink:href="#check-circle-fill" />
+            </svg>
+
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
+
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12 ">
+                <h3 class="mb-4">Objetivos de Desarrollo Sostenible</h3>
+                <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalAgregarOds">
+                    <i class="fa-solid fa-square-plus"></i> Agregar 
+                </button>
+                <div class="table-responsive" id="table-responsive">
+                    <table id="tablaOds" class="table table-striped">
+                        <caption>
+                            Registro de ODS
+                        </caption>
+                        <thead>
+                            <tr>
+                                <th class="centered " style="width: 15px !important;">#</th>
+                                <th class="centered ">Número Ods</th>
+                                <th class="centered ">Nombre</th>
+                                <th class="centered ">Logo</th>
+                                <th class="centered ">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody style="vertical-align: middle !important; white-space: nowrap !important;">
+                            {% for ods  in odss  %}
+                            <tr>
+                                <td style="width: 15px !important;"> {{ ods.idods }} </td>
+                                <td>{{ ods.numeroods }}</td>
+                                <td>{{ ods.nombre }}</td>
+                                <td>{% if ods.imagen %}
+                                    <img src="{% static ods.imagen %}" alt="ODS {{ ods.numeroods }}" title="{{ ods.nombre }}"  style="width:36px; height:36px; margin:2px; border-radius:6px; border:1px solid #ccc;">
+                                {% else %}
+                                    <span>No image</span>
+                                {% endif %}</td>
+                                <td style="white-space: nowrap !important;">
+                                    <button class="btn btn-primary btn-sm btn-editar" data-id="{{ ods.idods }}" data-numero="{{ ods.numeroods }}"
+                                    data-nombre="{{ ods.nombre }}" data-imagen="{{ ods.imagen }}"data-estado="{{ ods.estado }}"><i class="fa-solid fa-pencil"></i></button>
+                                    <button class="btn btn-danger btn-sm btn-eliminar" data-id="{{ ods.idods }}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" name="hid" id="hid" value="0">
+
+        <!-- Modal Editar ODS -->
+        <div class="modal fade" id="modalEditarOds" tabindex="-1" aria-labelledby="modalEditarOdsLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <form id="formEditarOds">
+                {% csrf_token %}
+                <input type="hidden" name="idods" id="editIdOds">
+                <div class="modal-header">
+                <h5 class="modal-title">Editar ODS</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Número ODS</label>
+                        <input type="number" class="form-control" name="numeroods" id="editNumeroOds" min="1" max="17" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" name="nombre" id="editNombreOds" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>URL del logo</label>
+                        <input type="text" class="form-control" name="imagen" id="editUrlImagenOds">
+                        <div id="previewImgOds" class="mt-2"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Estado</label>
+                        <select class="form-select" name="estado" id="editEstadoOds" required>
+                            <option value="True">Activo</option>
+                            <option value="False">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+            </div>
+        </div>
+        </div>
+
+        <!-- Modal Agregar ODS -->
+        <div class="modal fade" id="modalAgregarOds" tabindex="-1" aria-labelledby="modalAgregarOdsLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <form id="formAgregarOds" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                    <h5 class="modal-title">Agregar ODS</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Número ODS</label>
+                            <input type="number" class="form-control" name="numeroods" min="1" max="17" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Nombre</label>
+                            <input type="text" class="form-control" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Logo (opcional)</label>
+                            <input type="file" class="form-control" name="imagen" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                            <label>Estado</label>
+                            <select class="form-select" name="estado" required>
+                                <option value="True" selected>Activo</option>
+                                <option value="False">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.bootstrap5.js"></script>
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="text/javascript" charset="utf-8">
+        //Temporizador de muestra de mensaje
+        setTimeout(function () {
+            var successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                successMessage.style.display = 'none';
+            }
+        }, 3000); // Cambia 3000 que son 3 segundos 
+
+
+        $(document).ready(function () {
+            $('#tablaOds').DataTable({
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            }
+            });
+            //editar ods
+            $('.btn-editar').on('click', function() {
+                $('#editIdOds').val($(this).data('id'));
+                $('#editNumeroOds').val($(this).data('numero'));
+                $('#editNombreOds').val($(this).data('nombre'));
+                $('#editUrlImagenOds').val($(this).data('imagen'));
+                $('#editEstadoOds').val($(this).data('estado') ? 'True' : 'False');
+
+                // Mostrar preview de imagen
+                let url = $(this).data('imagen');
+                if (url) {
+                    $('#previewImgOds').html('<img src="' + url + '" alt="ODS" style="height:38px;">');
+                } else {
+                    $('#previewImgOds').html('');
+                }
+
+                $('#modalEditarOds').modal('show');
+            });
+
+            // Si el usuario cambia el campo de imagen, actualiza el preview en tiempo real
+            $('#editUrlImagenOds').on('input', function() {
+                let url = $(this).val();
+                if (url) {
+                    $('#previewImgOds').html('<img src="' + url + '" alt="ODS" style="height:38px;">');
+                } else {
+                    $('#previewImgOds').html('');
+                }
+            });
+
+            // Eliminar con confirmación
+            $('.btn-eliminar').on('click', function() {
+            let id = $(this).data('id');
+            Swal.fire({
+                title: '¿Eliminar ODS?',
+                text: 'No se podrá recuperar',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{% url 'ods_eliminar' %}",
+                        type: "POST",
+                        data: {
+                            'idods': id,
+                            'csrfmiddlewaretoken': '{{ csrf_token }}'
+                        },
+                        success: function(resp) {
+                            if (resp.success) {
+                                Swal.fire({icon: 'success', title: 'Eliminado', timer: 1000, showConfirmButton: false})
+                                .then(() => location.reload());
+                            } else {
+                                Swal.fire({icon: 'error', title: 'Error', text: resp.error});
+                            }
+                        }
+                    });
+                }
+            });
+        });
+            
+
+            // Enviar formulario para agregar (AJAX)
+            $('#formAgregarOds').on('submit', function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+                $.ajax({
+                    url: "{% url 'ods_agregar' %}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(resp) {
+                        if (resp.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ODS registrado',
+                                timer: 1200,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire({icon: 'error', title: 'Error', text: resp.error || 'Error al guardar'});
+                        }
+                    }
+                });
+            });
+            $('#formEditarOds').on('submit', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "{% url 'ods_editar' %}",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(resp) {
+                        if (resp.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'ODS actualizado',
+                                timer: 1200,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire({icon: 'error', title: 'Error', text: resp.error || 'Error al actualizar'});
+                        }
+                    }
+                });
+            });
+
+
+            
+        });
+        function hid(int_id){
+            var campoID = document.getElementById("hid");
+            campoID.value=int_id;
+        }
+    
+    </script>
+
+</body>
+
+</html>
+{% endblock %}

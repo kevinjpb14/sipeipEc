@@ -59,10 +59,28 @@ urlpatterns = [
     path('objetivos/estrategicos/editar/', views.objetivo_estrategico_edit, name='objetivo_estrategico_edit'),
     path('objetivos/estrategicos/history/', views.objetivo_estrategico_history, name='objetivo_estrategico_history'),
     path('objetivos/estrategicos/eliminar/', views.objetivo_estrategico_delete, name='objetivo_estrategico_delete'),
-
+    path('objetivos/ods/', views.objetivo_ods_list, name='objetivo_ods_list'),
+    path('ods/agregar/', views.ods_agregar, name='ods_agregar'),
+    path('ods/eliminar/', views.ods_eliminar, name='ods_eliminar'),
+    path('ods/editar/', views.ods_editar, name='ods_editar'),
+    path('objetivos/pnd/', views.objetivo_pnd_list, name='objetivo_pnd_list'),
+    path('pnd/agregar/', views.pnd_agregar, name='pnd_agregar'),
+    path('pnd/eliminar/', views.pnd_eliminar, name='pnd_eliminar'),
+    path('pnd/editar/', views.pnd_editar, name='pnd_editar'),
 
     #FIN DE URLS OBJETIVOS ESTRATEGICOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    #URLS PROYECTOS-*-*-**-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+    path('proyectos/', views.proyectos_list, name='proyectos_list'),
+    path('proyectos/registrar/', views.proyecto_registrar, name='proyecto_registrar'),
+    path('ajax/programas_por_plan/', views.programas_por_plan, name='programas_por_plan'),#URL para la vista AJAX de programas por plan
+    path('ajax/cantones_por_provincia/', views.cantones_por_provincia, name='cantones_por_provincia'),#URL para la vista AJAX de cantones por provincia
+    path('ajax/parroquias_por_canton/', views.parroquias_por_canton, name='parroquias_por_canton'),#URL para la vista AJAX de parroquias por canton
+    path('ajax/info_objetivo_estrategico/', views.info_objetivo_estrategico, name='info_objetivo_estrategico'),#URL para la vista AJAX para enviar info del objetivo seleccionado
+    path('ajax/info_meta/', views.info_meta, name='info_meta'),#URL para la vista AJAX para enviar indicadores asociados a meta seleccionada
+    path('ajax/info_impacto_ambiental/', views.info_impacto_ambiental, name='info_impacto_ambiental'),#URL para la vista AJAX para enviar info del impacto ambiental seleccionado
 
+
+    #FIN URLS PROYECTOS-*-*-**-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
     path('logout/', views.logout_view, name='logout'),
     path('registro/', views.registrar_usuario, name='registro'),
     path('activar/<uidb64>/<token>/', views.activar_cuenta, name='activar_cuenta'),

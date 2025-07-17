@@ -21,6 +21,8 @@ from django.contrib import messages
 from .models import Instituciones,InstitucionSector,InstitucionSubsector,Roles,Usuario,Permisos,ObjetivoEstrategico,PlanNacionalDesarrollo,ObjetivosDesarrolloSostenible,ObjetivoEstrategicoHistory,AlineacionObjetivoOds
 from django.http import JsonResponse
 from datetime import datetime
+from .models import Proyectos, ProyectoImpactoAmbiental, Programas,Planes,Provincias,Cantones,Parroquias,Metas
+
 
 @login_required(login_url='login')  # Redirige al login si no está autenticado
 def registrar_usuario(request):
@@ -120,7 +122,9 @@ def cambio_clave(request):
         # 2. Actualizar también el estado en la tabla usuario
         usuario = Usuario.objects.get(user=user)
         usuario.estado = True
-        usuario.save(update_fields=['estado'])
+        #instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+        usuario.idrol =  Roles.objects.get(pk=4)#instancia de Foreign Key para guardar nuevo valor de id de llave foranea
+        usuario.save()
 
         # Mantener sesión activa
         update_session_auth_hash(request, user)#Esta función actualiza la sesión activa del usuario después de que se cambie su contraseña, sin desconectarlo.
@@ -152,8 +156,6 @@ def obtener_modulos_por_usuario(usuario):
                     {'nombre': 'Subsectores', 'url': '/conf_institucional/subsectores/'},
                 ]
             },
-            {'nombre': 'Proyectos', 'url': '/proyectos/', 'icono': 'fa-diagram-project'},
-            {'nombre': 'Reportes', 'url': '/reportes/', 'icono': 'fa-file-excel'},
             {
                 'nombre': 'Objetivos estratégicos',
                 'icono': 'fa-bullseye',
@@ -161,14 +163,22 @@ def obtener_modulos_por_usuario(usuario):
                     {'nombre': 'PND', 'url': '/objetivos/pnd/'},
                     {'nombre': 'ODS', 'url': '/objetivos/ods/'},
                     {'nombre': 'Objetivos estratégicos', 'url': '/objetivos/estrategicos/'},
-                    {'nombre': 'Alinear objetivos', 'url': '/objetivos/alinear/'},
+                    #{'nombre': 'Alinear objetivos', 'url': '/objetivos/alinear/'},
                 ]
             },
+            {'nombre': 'Proyectos', 'url': '/proyectos/', 'icono': 'fa-diagram-project'},
+            {'nombre': 'Reportes', 'url': '/reportes/', 'icono': 'fa-file-excel'},
+            
         ]
     elif usuario.idrol.nombre == 'Tecnico':
         modulos = [
             {'nombre': 'Proyectos', 'url': '/proyectos/'},
         ]
+    elif usuario.idrol.nombre == 'Reportador':
+        modulos = [
+            {'nombre': 'Proyectos', 'url': '/proyectos/', 'icono': 'fa-diagram-project'},
+            {'nombre': 'Reportes', 'url': '/reportes/', 'icono': 'fa-file-excel'},
+        ]    
     return modulos
 
 @login_required(login_url='login')  # Redirige al login si no está autenticado
@@ -570,7 +580,122 @@ def objetivo_estrategico_ods(request):
     idobjest = request.GET.get('idobjest')
     ods_ids = list(AlineacionObjetivoOds.objects.filter(idobjest=idobjest).values_list('idods', flat=True))
     return JsonResponse({'ods': ods_ids})
+#OBTENER TODOS LOS ODS ACTIVOS 
+@login_required
+def objetivo_ods_list(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
+    ods = ObjetivosDesarrolloSostenible.objects.filter(estado=True).order_by('numeroods')
 
+    return render(request, 'app_sipeip/objetivos/ods_list.html', {'modulos': modulos,'odss': ods})
+
+#AGREGAR NUEVO ODS
+def ods_agregar(request):
+    if request.method == 'POST':
+        numeroods = request.POST.get('numeroods')
+        nombre = request.POST.get('nombre', '').upper()
+        estado = request.POST.get('estado') == 'True'
+        imagen = request.FILES.get('imagen')
+
+        ods = ObjetivosDesarrolloSostenible(
+            numeroods=numeroods,
+            nombre=nombre,
+            estado=estado
+        )
+        if imagen:
+            ods.imagen = imagen  # Si usas ImageField, asegúrate de tener configurado MEDIA_ROOT y MEDIA_URL
+
+        ods.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+#Eliminar ods
+def ods_eliminar(request):
+    if request.method == 'POST':
+        idods = request.POST.get('idods')
+        try:
+            ods = ObjetivosDesarrolloSostenible.objects.get(pk=idods)
+            ods.estado = False
+            ods.save()
+            return JsonResponse({'success': True})
+        except ObjetivosDesarrolloSostenible.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'ODS no encontrado'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+#editar ods
+def ods_editar(request):
+    if request.method == 'POST':
+        idods = request.POST.get('idods')
+        numeroods = request.POST.get('numeroods')
+        nombre = request.POST.get('nombre', '').upper()
+        imagen = request.POST.get('imagen', '')  # Aquí se guarda la URL
+        estado = request.POST.get('estado') == 'True'
+
+        try:
+            ods = ObjetivosDesarrolloSostenible.objects.get(pk=idods)
+            ods.numeroods = numeroods
+            ods.nombre = nombre
+            ods.imagen = imagen
+            ods.estado = estado
+            ods.save()
+            return JsonResponse({'success': True})
+        except ObjetivosDesarrolloSostenible.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'ODS no encontrado'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+
+
+
+#OBTENER TODOS LOS PND ACTIVOS 
+@login_required
+def objetivo_pnd_list(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
+    pnd = PlanNacionalDesarrollo.objects.filter(estado=True)
+
+    return render(request, 'app_sipeip/objetivos/pnd_list.html', {'modulos': modulos,'pnds': pnd})
+
+#AGREGAR NUEVO pnd
+def pnd_agregar(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').upper()
+        estado = request.POST.get('estado') == 'True'
+
+        pnd = PlanNacionalDesarrollo(
+            nombreeje=nombre,
+            estado=estado
+        )
+        pnd.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+#Eliminar pnd
+def pnd_eliminar(request):
+    if request.method == 'POST':
+        idpnd = request.POST.get('idpnd')
+        try:
+            pnd = PlanNacionalDesarrollo.objects.get(pk=idpnd)
+            pnd.estado = False
+            pnd.save()
+            return JsonResponse({'success': True})
+        except PlanNacionalDesarrollo.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'PND no encontrado'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+#editar pnd
+def pnd_editar(request):
+    if request.method == 'POST':
+        idpnd = request.POST.get('idpnd')
+        nombre = request.POST.get('nombre', '').upper()
+        estado = request.POST.get('estado') == 'True'
+
+        try:
+            ods = PlanNacionalDesarrollo.objects.get(pk=idpnd)
+            ods.nombreeje = nombre
+            ods.estado = estado
+            ods.save()
+            return JsonResponse({'success': True})
+        except PlanNacionalDesarrollo.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'PND no encontrado'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
 #vista para enviar edicion de objetivo estrategico
 @login_required
 def objetivo_estrategico_edit(request):
@@ -657,6 +782,120 @@ def objetivo_estrategico_delete(request):
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
 #*-*-*-*-*-*-*-*-*-*-*-*FIN OBJETIVOS ESTRATEGICOS-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+#*-*-*-*-*-*-*-*-*-*-*-*MODULOS PROYECTOS DE INVERSION-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+@login_required
+def proyectos_list(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
+    #La función select_related en Django es un método de optimización de consultas en el ORM. 
+    #select_related hace una "JOIN" en la base de datos y trae todo junto en una sola consulta, para que no haga consultas extra después
+    #esto Optimiza el acceso a relaciones y mejora el rendimiento en listados complejos.
+    proyectos = Proyectos.objects.select_related('idinstitucion', 'idobjest', 'idug','idiambiental', 'idprograma','idmeta').filter(estado=True)
+
+    return render(request, 'app_sipeip/proyectos/proyectos_list.html', {'modulos': modulos,'proyectos': proyectos})
+
+@login_required
+def proyecto_registrar(request):
+    usuario = request.user.usuario
+    modulos = obtener_modulos_por_usuario(usuario)
+    instituciones = Instituciones.objects.filter(estado=True)
+    objetivos = ObjetivoEstrategico.objects.filter(estado=True)
+    programas = Programas.objects.filter(estado=True)
+    planes = Planes.objects.filter(estado=True)
+    provincias = Provincias.objects.all()
+    cantones = Cantones.objects.all()
+    parroquias = Parroquias.objects.all()
+    metas = Metas.objects.filter(estado=True)
+    usuarios = Usuario.objects.filter(estado=True,idrol=2)
+    # fuentes de financiamiento
+    FUENTES_FINANCIAMIENTO = [
+    {'id': 1, 'nombre': 'Gobierno Central'},
+    {'id': 2, 'nombre': 'Gobiernos Autónomos Descentralizados'},
+    {'id': 3, 'nombre': 'Cooperación Internacional'},
+    {'id': 4, 'nombre': 'Autogestión'},
+    {'id': 5, 'nombre': 'Otros'}
+    ]
+    impactos = ProyectoImpactoAmbiental.objects.filter(estado=True)
+    return render(request, 'app_sipeip/proyectos/proyecto_registrar.html', {'modulos': modulos,'instituciones': instituciones,'objetivos': objetivos,
+        'programas': programas,'planes': planes,'provincias': provincias,'cantones': cantones,'parroquias': parroquias,'metas': metas,
+        'usuarios': usuarios,'fuentes': FUENTES_FINANCIAMIENTO,'impactos': impactos,})
+#Vista AJAX para cargar programas por plan
+@login_required
+def programas_por_plan(request):
+    idplan = request.GET.get('idplan')
+    programas = Programas.objects.filter(idplan=idplan, estado=True).values('idprograma', 'nombre')
+    return JsonResponse(list(programas), safe=False)
+
+#AJAX para cascada de cantones y parroquias
+@login_required
+def cantones_por_provincia(request):
+    idprovincia = request.GET.get('idprovincia')
+    cantones = Cantones.objects.filter(idprovincia=idprovincia).values('idcanton', 'nombre')
+    return JsonResponse(list(cantones), safe=False)
+
+#AJAX para cascada de cantones y parroquias
+@login_required
+def parroquias_por_canton(request):
+    idcanton = request.GET.get('idcanton')
+    parroquias = Parroquias.objects.filter(idcanton=idcanton).values('idparroquia', 'nombre')
+    return JsonResponse(list(parroquias), safe=False)
+
+#Vista AJAX para descripción del impacto ambiental
+@login_required
+def info_impacto_ambiental(request):
+    idambiental = request.GET.get('idambiental')
+    try:
+        impacto = ProyectoImpactoAmbiental.objects.get(pk=idambiental)
+        descripcion = impacto.descripcion or "Sin descripción."
+        return JsonResponse({'descripcion': descripcion})
+    except ProyectoImpactoAmbiental.DoesNotExist:
+        return JsonResponse({'descripcion': 'No encontrado'})
+#Vista AJAX para enviar info del objetivo seleccionado
+@login_required
+def info_objetivo_estrategico(request):
+    idobj = request.GET.get('idobjest')
+    objetivo = ObjetivoEstrategico.objects.select_related('idpnd').get(pk=idobj)
+    pnd = objetivo.idpnd
+
+    # Define los colores según el ID del PND
+    colores = {
+        1: '#704e9a',
+        2: '#008781',
+        3: '#408ac9',
+        4: '#3d2f6d',
+        5: '#f9b43d'
+    }
+    color_pnd = colores.get(pnd.idpnd, '#704e9a')
+
+    # Trae los ODS alineados
+    ods_list = []
+    for alineacion in AlineacionObjetivoOds.objects.filter(idobjest=idobj):
+        ods = alineacion.idods
+        ods_list.append({
+            'numero': ods.numeroods,
+            'nombre': ods.nombre,
+            'imagen': ods.imagen 
+        })
+
+    return JsonResponse({
+        'pnd': pnd.nombreeje,
+        'color': color_pnd,
+        'objetivo': objetivo.nombre,
+        'descripcion': objetivo.descripcion,
+        'ods': ods_list
+    })
+#Vista AJAX para obtener indicador de la meta
+@login_required
+def info_meta(request):
+    idmeta = request.GET.get('idmeta')
+    try:
+        meta = Metas.objects.get(pk=idmeta)
+        indicador = meta.idindicador.nombre +' '+meta.idindicador.formula if meta.idindicador else 'Sin indicador asociado'
+        return JsonResponse({'indicador': indicador})
+    except Metas.DoesNotExist:
+        return JsonResponse({'indicador': 'No encontrado'})
+#*-*-*-*-*-*-*-*-*-*-*-*FIN MODULOS PROYECTOS DE INVERSION-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 @never_cache
 def login_view(request):
