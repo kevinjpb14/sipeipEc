@@ -251,7 +251,8 @@ class Metas(models.Model):
     nombre = models.CharField(max_length=255, blank=True, null=True)
     tipometa = models.CharField(db_column='tipoMeta', max_length=255, blank=True, null=True)  # Field name made lowercase.
     idindicador = models.ForeignKey(Indicadores, models.DO_NOTHING, db_column='idIndicador', blank=True, null=True)  # Field name made lowercase.
-    idusuario = models.IntegerField(db_column='idUsuario', blank=True, null=True)  # Field name made lowercase.
+    idusuario = models.ForeignKey('Usuario', models.DO_NOTHING, db_column='idUsuario', blank=True, null=True)  # Field name made lowercase.
+
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
@@ -430,6 +431,17 @@ class ProyectoUbiGeografica(models.Model):
         managed = False
         db_table = 'proyecto_ubi_geografica'
 
+class FinanciamientoProyecto(models.Model):
+    idfinanciamiento= models.AutoField(db_column='idFinanciamiento', primary_key=True)  # Field name made lowercase.
+    idproyecto = models.ForeignKey('Proyectos', models.DO_NOTHING, db_column='idProyecto', blank=True, null=True)  # Field name made lowercase.
+    fuente = models.CharField(max_length=255, blank=True, null=True)
+    monto = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    observaciones = models.CharField(max_length=255, blank=True, null=True)
+    #estado = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'financiamiento_proyecto'
 
 class Proyectos(models.Model):
     idproyecto = models.AutoField(db_column='idProyecto', primary_key=True)  # Field name made lowercase.
@@ -448,6 +460,7 @@ class Proyectos(models.Model):
     duracionproyecto = models.DecimalField(db_column='duracionProyecto', max_digits=65535, decimal_places=65535, blank=True, null=True)  # Field name made lowercase.
     autogestion = models.CharField(max_length=255, blank=True, null=True)
     idprograma = models.ForeignKey(Programas, models.DO_NOTHING, db_column='idPrograma', blank=True, null=True)  # Field name made lowercase.
+    sostenibilidad = models.CharField(max_length=255, blank=True, null=True)
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:

@@ -113,6 +113,22 @@ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
                     <div id="mapa" style="height: 300px; width: 100%;"></div>
                     <input type="hidden" name="coordenadas" id="coordenadas">
                 </div>
+                <div class="mb-3"> 
+                    <label class="form-label">Análisis de la situación actual</label>
+                    <textarea class="form-control" name="situacion_actual" id="situacion_actual" placeholder="Descripción de Ia realidad existente en una zona determinada, problemas o necesidades de su población" required></textarea>
+                </div>
+                <div class="mb-3"> 
+                    <label class="form-label">Justificación</label>
+                    <textarea class="form-control" name="justificacion" id="justificacion" placeholder="La entidad nacional ejecutora debe presentar los correspondientes justificativos para la consecución de los recursos económicos" required></textarea>
+                </div>
+                <div class="mb-3"> 
+                    <label class="form-label">Beneficiarios</label>
+                    <input type="text" class="form-control" name="beneficiarios" id="beneficiarios" placeholder="Cuántas personas o familias de la zona que abarca el proyecto se benefician realmente de la propuesta" required>
+                </div>
+                <div class="mb-3"> 
+                    <label class="form-label">Proyectos relacionados</label>
+                    <textarea class="form-control" name="proyectos_relacionados" id="proyectos_relacionados" placeholder="Indicar Brevemente los proyectos que se encuentran vinculados a este proyecto" required></textarea>
+                </div>
                 <button type="button" class="btn btn-secondary" onclick="prevStep(1)">&larr; Anterior</button>
                 <button type="button" class="btn btn-primary float-end" onclick="nextStep(3)">Siguiente &rarr;</button>
             </div>
@@ -205,6 +221,12 @@ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
                     <label class="form-label">Sostenibilidad del proyecto</label>
                     <textarea class="form-control" name="sostenibilidad" rows="3"></textarea>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Duracion del proyecto</label>
+                    <input type="number" class="form-control" name="duracion_proyecto" placeholder="Indique en numero de años" ></input>
+                </div>
+                <input type="hidden" name="actividades_json" id="actividades_json">
+                <input type="hidden" name="fuentes_json" id="fuentes_json">
                 <button type="button" class="btn btn-secondary" onclick="prevStep(5)">&larr; Anterior</button>
                 <button type="submit" class="btn btn-success float-end">Finalizar registro</button>
             </div>
@@ -435,6 +457,7 @@ $('#formActividad').submit(function(e) {
     $('#modalActividades').modal('hide');
 });
 
+
 // Renderiza la tabla de actividades
 function renderTablaActividades() {
     let html = '<table class="table table-bordered"><thead><tr><th>Actividad</th><th>Periodos</th><th>Acciones</th></tr></thead><tbody>';
@@ -626,6 +649,24 @@ $('#selectImpactoAmbiental').on('change', function() {
         });
     }
 });
-
+$('#wizardProyecto').on('submit', function(e) {
+    e.preventDefault(); // Detén el submit por defecto
+    $('#actividades_json').val(JSON.stringify(actividades));
+    $('#fuentes_json').val(JSON.stringify(fuentes));
+    // Muestra el SweetAlert de confirmación
+    Swal.fire({
+        title: '¿Guardar proyecto?',
+        text: '¿Está seguro de registrar el proyecto con todos los datos ingresados?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si confirma, envía el formulario real
+            this.submit();
+        }
+    });
+});
 </script>
 {% endblock %}

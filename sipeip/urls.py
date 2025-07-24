@@ -78,6 +78,7 @@ urlpatterns = [
     path('ajax/info_objetivo_estrategico/', views.info_objetivo_estrategico, name='info_objetivo_estrategico'),#URL para la vista AJAX para enviar info del objetivo seleccionado
     path('ajax/info_meta/', views.info_meta, name='info_meta'),#URL para la vista AJAX para enviar indicadores asociados a meta seleccionada
     path('ajax/info_impacto_ambiental/', views.info_impacto_ambiental, name='info_impacto_ambiental'),#URL para la vista AJAX para enviar info del impacto ambiental seleccionado
+    path('ajax/proyecto_detalle/', views.proyecto_detalle, name='proyecto_detalle'),#AJAX en Django para traer todo el detalle del producto
 
 
     #FIN URLS PROYECTOS-*-*-**-*-*-*-*-*-*-*-*--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

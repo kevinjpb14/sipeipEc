@@ -7,6 +7,12 @@
 <link href='https://cdn.datatables.net/2.3.2/css/dataTables.bootstrap5.css' rel='stylesheet'>
 <link href='https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.css' rel='stylesheet'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+{% block extra_head %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
 {% endblock %}
 {% block content %}
 <div class="container mt-4">
@@ -45,8 +51,16 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a href="{% url 'proyecto_editar' p.idproyecto %}" class="btn btn-warning btn-sm" title="Editar">
-                            <i class="fas fa-edit"></i>
+                        <button class="btn btn-info btn-sm btn-ver" 
+                                data-id="{{ p.idproyecto }}"
+                                title="Ver Completo">
+                            <i class="fa fa-eye"></i>
+                        </button>
+                        <a href="{% url 'proyecto_editar' p.idproyecto %}" 
+                            class="btn btn-warning btn-sm" 
+                            title="Editar"
+                            target="_blank">
+                                <i class="fa fa-edit"></i>
                         </a>
                         <button class="btn btn-danger btn-sm btn-eliminar" data-id="{{ p.idproyecto }}">
                             <i class="fas fa-trash"></i>
@@ -58,10 +72,24 @@
             </tbody>
         </table>
     </div>
-</div>
 
+</div>
+<div class="modal fade" id="modalVerProyecto" tabindex="-1" aria-labelledby="modalVerProyectoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle del Proyecto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="proyectoDetalleContent">
+                <div class="text-center my-3"><div class="spinner-border text-info"></div></div>
+            </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block extra_js %}
 <!-- DataTables y SweetAlert -->
-<script src="https://code.jquery.com/jquery-latest.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.2/js/dataTables.js"></script>
@@ -75,5 +103,119 @@ $(document).ready(function() {
     });
 
 });
+//JS para cargar el modal y renderizar todos los detalles del proyecto
+$('.btn-ver').on('click', function() {
+    let id = $(this).data('id');
+    $('#proyectoDetalleContent').html('<div class="text-center my-3"><div class="spinner-border text-info"></div></div>');
+    $('#modalVerProyecto').modal('show');
+    $.ajax({
+        url: "{% url 'proyecto_detalle' %}",
+        data: {idproyecto: id},
+        success: function(resp) {
+            if(resp.success){
+                let p = resp.proyecto;
+
+                // Bloque objetivo estratégico visual
+                let ods_imgs = '';
+                (p.ods_imgs || []).forEach(function(ods) {
+                    ods_imgs += `<img src="{% static '' %}${ods.imagen}" alt="ODS ${ods.numero}" title="${ods.nombre}" style="width:38px;height:38px;margin-right:4px;border-radius:4px;border:1px solid #ccc;">`;
+                });
+
+                let objetivoHtml = `
+                    <div style="background:${p.color_pnd}; color:#fff; padding:8px 15px; font-weight:bold; border-radius:6px 6px 0 0; font-size:1.1rem;">
+                        ${p.pnd}
+                    </div>
+                    <div style="border:1px solid ${p.color_pnd}; border-top:0; border-radius:0 0 6px 6px; padding:10px;">
+                        <div style="font-weight: bold;">${p.objetivo}:</div>
+                        <div>${p.objetivo_desc}</div>
+                        <div class="mt-2">${ods_imgs}</div>
+                    </div>
+                `;
+
+                // Ubicación y mapa
+                let mapaHtml = '';
+                if (p.coordenadas) {
+                    let [lat, lng] = p.coordenadas.split(',');
+                    mapaHtml = `<div id="mapaDetalle" style="height: 220px; width:100%;"></div>`;
+                }
+
+                // Financiamiento tabla
+                let financiHtml = '<table class="table table-bordered"><thead><tr><th>Fuente</th><th>Monto</th><th>Obs</th></tr></thead><tbody>';
+                resp.financiaciones.forEach(f =>
+                    financiHtml += `<tr><td>${f.fuente}</td><td>$${parseFloat(f.monto).toFixed(2)}</td><td>${f.observaciones||''}</td></tr>`
+                );
+                financiHtml += '</tbody></table>';
+
+                // Actividades y periodos tabla
+                let actividadesHtml = '<table class="table table-bordered"><thead><tr><th>Actividad</th><th>Periodos</th></tr></thead><tbody>';
+                resp.actividades.forEach(a => {
+                    let per = a.periodos.map(p=>`<span class="badge bg-info">${p.nombre}: ${p.valor}</span>`).join('<br>');
+                    actividadesHtml += `<tr><td>${a.nombre}</td><td>${per}</td></tr>`;
+                });
+                actividadesHtml += '</tbody></table>';
+
+                // Render
+                $('#proyectoDetalleContent').html(`
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6>Información general</h6>
+                    <b>Nombre:</b> ${p.nombre}<br>
+                    <b>Institución:</b> ${p.institucion}<br>
+                    <b>Programa:</b> ${p.programa}<br>
+                    <b>Meta:</b> ${p.meta}<br>
+                    <b>Usuario responsable meta:</b> ${p.usuario_responsable}<br>
+                    <b>Impacto ambiental:</b> ${p.impacto}<br>
+                    <b>Autogestión:</b> ${p.autogestion}<br>
+                    <b>Sostenibilidad:</b> ${p.sostenibilidad||''}
+                  </div>
+                  <div class="col-md-6">
+                    <h6>Ubicación</h6>
+                    <b>Provincia:</b> ${p.provincia}<br>
+                    <b>Cantón:</b> ${p.canton}<br>
+                    <b>Parroquia:</b> ${p.parroquia}<br>
+                    ${mapaHtml}
+                  </div>
+                </div>
+                <hr>
+                <h6>Objetivo estratégico</h6>
+                ${objetivoHtml}
+                <hr>
+                <h6>Financiamiento</h6>
+                ${financiHtml}
+                <hr>
+                <h6>Actividades</h6>
+                ${actividadesHtml}
+                `);
+                // Inicializa Leaflet solo si hay coordenadas
+                if (p.coordenadas) {
+                    setTimeout(function(){
+                        let [lat, lng] = p.coordenadas.split(',');
+                        var mapDetalle = L.map('mapaDetalle').setView([parseFloat(lat), parseFloat(lng)], 13);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© OpenStreetMap contributors'
+                        }).addTo(mapDetalle);
+                        L.marker([parseFloat(lat), parseFloat(lng)]).addTo(mapDetalle);
+                    }, 400);
+                }
+                // ...
+            } else {
+                $('#proyectoDetalleContent').html('<div class="alert alert-danger">No se pudo cargar el detalle.</div>');
+            }
+        }
+    });
+});
+
 </script>
+{% if messages %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: '¡Registro exitoso!',
+        text: '{{ messages.0 }}',
+        timer: 2000,
+        showConfirmButton: false
+    });
+</script>
+{% endif %}
 {% endblock %}
