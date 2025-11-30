@@ -24,6 +24,7 @@ from datetime import datetime
 from .models import Proyectos, ProyectoImpactoAmbiental, Programas,Planes,Provincias,Cantones,Parroquias,Metas,FinanciamientoProyecto,ActividadesProyecto,PeriodoActividad
 from .models import ProyectoUbiGeografica
 import json
+from django.template.loader import render_to_string
 
 @login_required(login_url='login')  # Redirige al login si no está autenticado
 def registrar_usuario(request):
@@ -1031,6 +1032,58 @@ def proyecto_detalle(request):
                 'canton':  ubicacion.idparroquia.idcanton.nombre if ubicacion and ubicacion.idparroquia.idcanton else '',
                 'parroquia': ubicacion.idparroquia.nombre if ubicacion and ubicacion.idparroquia else '',
                 'coordenadas': ubicacion.coordenadas if ubicacion else '',
+            },
+            'financiaciones': financiaciones,
+            'actividades': actividades,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+#Vista AJAX para guardar datos en modo edición de Proyecto
+@login_required
+def proyecto_editar_ajax(request):
+    idproyecto = request.GET.get('idproyecto')
+    try:
+        proyecto = Proyectos.objects.select_related('idprograma','idinstitucion','idambiental','idobjest','idug','idmeta').get(pk=idproyecto)
+        ubicacion = proyecto.idug
+        financiaciones = list(FinanciamientoProyecto.objects.filter(idproyecto=proyecto).values('idfinanciamiento','fuente','monto','observaciones'))
+        actividades = []
+        for act in ActividadesProyecto.objects.filter(idproyecto=proyecto):
+            periodos = list(PeriodoActividad.objects.filter(idactividad=act).values('idperiodoactividad','nombre','valor'))
+            actividades.append({'id': act.idactividad, 'nombre': act.nombre, 'periodos': periodos})
+        # Igual, objetivo estratégico + PND + ODS alineados
+        obj = proyecto.idobjest
+        pnd = obj.idpnd
+        colores = {1:'#704e9a',2:'#008781',3:'#408ac9',4:'#3d2f6d',5:'#f9b43d'}
+        color_pnd = colores.get(pnd.idpnd, '#704e9a')
+        ods_imgs = []
+        for alineacion in AlineacionObjetivoOds.objects.filter(idobjest=obj.idobjest):
+            ods = alineacion.idods
+            ods_imgs.append({'numero': ods.numeroods, 'nombre': ods.nombre, 'imagen': ods.imagen})
+        return JsonResponse({
+            'success': True,
+            'proyecto': {
+                'id': proyecto.idproyecto,
+                'nombre': proyecto.nombre,
+                'idinstitucion': proyecto.idinstitucion.idinstitucion if proyecto.idinstitucion else '',
+                'idprograma': proyecto.idprograma.idprograma if proyecto.idprograma else '',
+                'idplan': proyecto.idprograma.idplan.idplan if proyecto.idprograma and proyecto.idprograma.idplan else '',
+                'idobjest': obj.idobjest if obj else '',
+                'idmeta': proyecto.idmeta.idmeta if proyecto.idmeta else '',
+                'meta': proyecto.idmeta.nombre if proyecto.idmeta else '',
+                'usuario_responsable': proyecto.idmeta.idusuario.idusuario if proyecto.idmeta and proyecto.idmeta.idusuario else '',
+                'provincia': ubicacion.idprovincia.idprovincia if ubicacion and ubicacion.idprovincia else '',
+                'canton': ubicacion.idcanton.idcanton if ubicacion and ubicacion.idcanton else '',
+                'parroquia': ubicacion.idparroquia.idparroquia if ubicacion and ubicacion.idparroquia else '',
+                'coordenadas': ubicacion.coordenadas if ubicacion else '',
+                'impacto': proyecto.idambiental.idambiental if proyecto.idambiental else '',
+                'autogestion': proyecto.autogestion,
+                'sostenibilidad': proyecto.sostenibilidad,
+                'color_pnd': color_pnd,
+                'pnd': pnd.nombreeje if pnd else '',
+                'objetivo': obj.nombre if obj else '',
+                'objetivo_desc': obj.descripcion if obj else '',
+                'ods_imgs': ods_imgs,
             },
             'financiaciones': financiaciones,
             'actividades': actividades,

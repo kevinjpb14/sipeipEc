@@ -41,7 +41,7 @@ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
                     <td>{{ p.nombre }}</td>
                     <td>{{ p.idinstitucion.nombre }}</td>
                     <td>{{ p.idobjest.nombre }}</td>
-                    <td>{{ p.idambiental.nombre }}</td>
+                    <td>{{ p.idiambiental.descripcion }}</td>
                     <td>{{ p.idprograma.nombre }}</td>
                     <td>
                         {% if p.estado %}
@@ -56,16 +56,15 @@ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
                                 title="Ver Completo">
                             <i class="fa fa-eye"></i>
                         </button>
-                        <a href="{% url 'proyecto_editar' p.idproyecto %}" 
-                            class="btn btn-warning btn-sm" 
-                            title="Editar"
-                            target="_blank">
-                                <i class="fa fa-edit"></i>
-                        </a>
+                        <button class="btn btn-warning btn-sm btn-editar" 
+                                data-id="{{ p.idproyecto }}"
+                                title="Editar Proyecto">
+                            <i class="fas fa-edit"></i>
+                        </button>
+
                         <button class="btn btn-danger btn-sm btn-eliminar" data-id="{{ p.idproyecto }}">
                             <i class="fas fa-trash"></i>
                         </button>
-                        <!-- Puedes agregar aquí más acciones, como ver detalle o cronograma -->
                     </td>
                 </tr>
                 {% endfor %}
@@ -87,6 +86,25 @@ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
             </div>
         </div>
     </div>
+    <div class="modal fade" id="modalEditarProyecto" tabindex="-1" aria-labelledby="modalEditarProyectoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Editar Proyecto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="formEditarProyecto">
+        <div class="modal-body" id="proyectoEditarContent">
+            <div class="text-center my-3"><div class="spinner-border text-info"></div></div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Guardar Cambios</button>
+        </div>
+        </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 {% block extra_js %}
 <!-- DataTables y SweetAlert -->

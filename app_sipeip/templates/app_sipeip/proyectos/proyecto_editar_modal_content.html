@@ -1,0 +1,194 @@
+<!-- Paso 1: General -->
+<div class="row">
+  <div class="col-md-6">
+    <div class="mb-3">
+      <label>Nombre del Proyecto</label>
+      <input type="text" class="form-control" name="nombre" value="{{ proyecto.nombre }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Institución</label>
+      <select class="form-select" name="institucion" required>
+        <option value="">Seleccione...</option>
+        {% for inst in instituciones %}
+        <option value="{{ inst.idinstitucion }}" {% if inst.idinstitucion == proyecto.idinstitucion.idinstitucion %}selected{% endif %}>{{ inst.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Programa</label>
+      <select class="form-select" name="programa" required>
+        <option value="">Seleccione...</option>
+        {% for prog in programas %}
+        <option value="{{ prog.idprograma }}" {% if prog.idprograma == proyecto.idprograma.idprograma %}selected{% endif %}>{{ prog.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Plan</label>
+      <select class="form-select" name="plan" required>
+        <option value="">Seleccione...</option>
+        {% for pl in planes %}
+        <option value="{{ pl.idplan }}" {% if pl.idplan == proyecto.idprograma.idplan.idplan %}selected{% endif %}>{{ pl.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Objetivo Estratégico</label>
+      <select class="form-select" name="objetivo" id="selectObjetivo" required>
+        <option value="">Seleccione...</option>
+        {% for obj in objetivos %}
+        <option value="{{ obj.idobjest }}" {% if obj.idobjest == proyecto.idobjest.idobjest %}selected{% endif %}>{{ obj.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Meta</label>
+      <select class="form-select" name="meta" id="selectMeta" required>
+        <option value="">Seleccione...</option>
+        {% for meta in metas %}
+        <option value="{{ meta.idmeta }}" {% if proyecto.idmeta and meta.idmeta == proyecto.idmeta.idmeta %}selected{% endif %}>{{ meta.nombre }}</option>
+        {% endfor %}
+      </select>
+      <div id="infoIndicador" class="mt-2"></div>
+    </div>
+    <div class="mb-3">
+      <label>Usuario responsable de la meta</label>
+      <select class="form-select" name="usuario_responsable" required>
+        <option value="">Seleccione...</option>
+        {% for u in usuarios %}
+        <option value="{{ u.idusuario }}" {% if proyecto.idmeta and proyecto.idmeta.idusuario and u.idusuario == proyecto.idmeta.idusuario.idusuario %}selected{% endif %}>{{ u.nombres }} {{ u.apellidos }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <!-- Paso 2: Localización -->
+  <div class="col-md-6">
+    <div class="mb-3">
+      <label>Provincia</label>
+      <select id="selectProvincia" name="provincia" class="form-select" required>
+        <option value="">Seleccione provincia</option>
+        {% for prov in provincias %}
+        <option value="{{ prov.idprovincia }}" {% if ubicacion and prov.idprovincia == ubicacion.idprovincia.idprovincia %}selected{% endif %}>{{ prov.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Cantón</label>
+      <select id="selectCanton" name="canton" class="form-select" required>
+        <option value="">Seleccione cantón</option>
+        {% for cant in cantones %}
+        <option value="{{ cant.idcanton }}" {% if ubicacion and cant.idcanton == ubicacion.idcanton.idcanton %}selected{% endif %}>{{ cant.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Parroquia</label>
+      <select id="selectParroquia" name="parroquia" class="form-select" required>
+        <option value="">Seleccione parroquia</option>
+        {% for parr in parroquias %}
+        <option value="{{ parr.idparroquia }}" {% if ubicacion and parr.idparroquia == ubicacion.idparroquia.idparroquia %}selected{% endif %}>{{ parr.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label>Ubicación en mapa</label>
+      <div id="mapaEditarModal" style="height: 250px; width: 100%;"></div>
+      <input type="hidden" name="coordenadas" id="coordenadasEditarModal" value="{% if ubicacion %}{{ ubicacion.coordenadas }}{% endif %}">
+    </div>
+  </div>
+</div>
+<hr>
+<!-- Paso 3: Actividades -->
+<h6>Actividades y Periodos</h6>
+<div id="tablaActividadesWrapper"></div>
+<hr>
+<!-- Paso 4: Financiamiento -->
+<h6>Fuentes de Financiamiento</h6>
+<div id="tablaFuentesWrapper"></div>
+<div class="mt-3 text-end"><strong>Total inversión: $<span id="totalInversion">0.00</span></strong></div>
+<hr>
+<!-- Paso 5: Cronograma -->
+<h6>Cronograma valorado</h6>
+<div id="cronogramaWrapper"></div>
+<hr>
+<!-- Paso 6: Impacto y Sostenibilidad -->
+<div class="row">
+  <div class="col-md-6">
+    <div class="mb-3">
+      <label class="form-label">Impacto ambiental</label>
+      <select class="form-select" name="impacto_ambiental" required>
+        <option value="">Seleccione...</option>
+        {% for imp in impactos %}
+        <option value="{{ imp.idambiental }}" {% if proyecto.idambiental and imp.idambiental == proyecto.idambiental.idambiental %}selected{% endif %}>{{ imp.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Autogestión</label>
+      <select class="form-select" name="autogestion" required>
+        <option value="Sí" {% if proyecto.autogestion == 'Sí' %}selected{% endif %}>Sí</option>
+        <option value="No" {% if proyecto.autogestion == 'No' %}selected{% endif %}>No</option>
+        <option value="Parcial" {% if proyecto.autogestion == 'Parcial' %}selected{% endif %}>Parcial</option>
+      </select>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="mb-3">
+      <label class="form-label">Sostenibilidad del proyecto</label>
+      <textarea class="form-control" name="sostenibilidad" rows="3">{{ proyecto.sostenibilidad }}</textarea>
+    </div>
+  </div>
+</div>
+<input type="hidden" name="actividades_json" id="actividades_json_modal">
+<input type="hidden" name="fuentes_json" id="fuentes_json_modal">
+
+<!-- Data para JS -->
+{{ actividades|json_script:"actividades-modal-data" }}
+{{ financiaciones|json_script:"fuentes-modal-data" }}
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa actividades y fuentes desde Django
+    let actividades = JSON.parse(document.getElementById('actividades-modal-data').textContent);
+    let fuentes = JSON.parse(document.getElementById('fuentes-modal-data').textContent);
+
+    // Mapa con coordenadas ya guardadas
+    let initialCoords = document.getElementById('coordenadasEditarModal').value;
+    let lat = -1.83, lng = -78.18; // Ecuador por defecto
+    if (initialCoords) {
+        let split = initialCoords.split(',');
+        if (split.length == 2) {
+            lat = parseFloat(split[0]);
+            lng = parseFloat(split[1]);
+        }
+    }
+    let mapEditar = L.map('mapaEditarModal').setView([lat, lng], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mapEditar);
+    let markerEditar = L.marker([lat, lng], {draggable: true}).addTo(mapEditar);
+    markerEditar.on('dragend', function(e) {
+        let pos = markerEditar.getLatLng();
+        document.getElementById('coordenadasEditarModal').value = pos.lat.toFixed(6) + ',' + pos.lng.toFixed(6);
+    });
+    mapEditar.on('click', function(e) {
+        let pos = e.latlng;
+        markerEditar.setLatLng(pos);
+        document.getElementById('coordenadasEditarModal').value = pos.lat.toFixed(6) + ',' + pos.lng.toFixed(6);
+    });
+
+    // Renderiza las actividades, fuentes, cronograma (usa tus funciones JS previas)
+    if(typeof renderTablaActividades === 'function') renderTablaActividades();
+    if(typeof renderTablaFuentes === 'function') renderTablaFuentes();
+    if(typeof renderCronograma === 'function') renderCronograma();
+
+    // Al guardar, asegúrate de setear los JSON en los inputs ocultos antes de submit
+    document.getElementById('formEditarProyecto').addEventListener('submit', function(e) {
+        document.getElementById('actividades_json_modal').value = JSON.stringify(actividades);
+        document.getElementById('fuentes_json_modal').value = JSON.stringify(fuentes);
+    });
+
+    // Aquí puedes inicializar otros componentes dinámicos (indicador, ods, etc.)
+});
+</script>
