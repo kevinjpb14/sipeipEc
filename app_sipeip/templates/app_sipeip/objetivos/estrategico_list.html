@@ -56,7 +56,7 @@
                         
                             {% with ods=alineacion.idods %}
                                 {% if ods.imagen %}
-                                    <img src="{% static ods.imagen %}" alt="ODS {{ ods.numeroods }}" title="{{ ods.nombre }}"  style="width:36px; height:36px; margin:2px; border-radius:6px; border:1px solid #ccc;">
+                                    <img src="{% static 'app_sipeip/images/ods_img/' %}{{ ods.imagen }}" alt="ODS {{ ods.numeroods }}" title="{{ ods.nombre }}"  style="width:36px; height:36px; margin:2px; border-radius:6px; border:1px solid #ccc;">
                                 {% else %}
                                     <span>No image</span>
                                 {% endif %}

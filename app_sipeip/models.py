@@ -15,7 +15,7 @@ class ActividadesProyecto(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'actividades_proyecto'
 
 
@@ -25,7 +25,7 @@ class AlineacionObjetivoOds(models.Model):
     idods = models.ForeignKey('ObjetivosDesarrolloSostenible', models.DO_NOTHING, db_column='idOds', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'alineacion_objetivo_ods'
 
 
@@ -37,7 +37,7 @@ class AuditDetalle(models.Model):
     newvalue = models.CharField(db_column='newValue', max_length=255, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'audit_detalle'
 
 
@@ -54,7 +54,7 @@ class AuditLog(models.Model):
     auth_source = models.CharField(max_length=255, db_comment='Si viene de LDAP o de Django la autenticación')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'audit_log'
 
 
@@ -133,7 +133,7 @@ class Cantones(models.Model):
     idprovincia = models.ForeignKey('Provincias', models.DO_NOTHING, db_column='idProvincia', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'cantones'
 
 
@@ -191,7 +191,7 @@ class Indicadores(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'indicadores'
 
 
@@ -201,7 +201,7 @@ class InstitucionSector(models.Model):
     estado = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'institucion_sector'
 
     def save(self, *args, **kwargs):
@@ -217,7 +217,7 @@ class InstitucionSubsector(models.Model):
     estado = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'institucion_subsector'
 
     def save(self, *args, **kwargs):
@@ -236,7 +236,7 @@ class Instituciones(models.Model):
     fechaactualizacion = models.DateTimeField(db_column='fechaActualizacion', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'instituciones'
 
     def save(self, *args, **kwargs):
@@ -256,7 +256,7 @@ class Metas(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'metas'
 
 
@@ -269,7 +269,7 @@ class ObjetivoEstrategico(models.Model):
     estado = models.BooleanField()
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'objetivo_estrategico'
 
 
@@ -286,7 +286,7 @@ class ObjetivoEstrategicoHistory(models.Model):
     idpnd = models.IntegerField(db_column='idPnd', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'objetivo_estrategico_history'
 
 
@@ -299,7 +299,7 @@ class ObjetivosDesarrolloSostenible(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'objetivos_desarrollo_sostenible'
 
 
@@ -309,19 +309,19 @@ class Parroquias(models.Model):
     idcanton = models.ForeignKey(Cantones, models.DO_NOTHING, db_column='idCanton', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'parroquias'
 
 
 class PeriodoActividad(models.Model):
     idperiodo = models.AutoField(db_column='idPeriodo', primary_key=True)  # Field name made lowercase.
     nombre = models.CharField(max_length=255, blank=True, null=True)
-    valor = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    valor = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     idactividad = models.ForeignKey(ActividadesProyecto, models.DO_NOTHING, db_column='idActividad', blank=True, null=True)  # Field name made lowercase.
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'periodo_actividad'
 
 
@@ -332,7 +332,7 @@ class Permisos(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'permisos'
 
 
@@ -343,7 +343,7 @@ class PlanNacionalDesarrollo(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'plan_nacional_desarrollo'
 
 
@@ -355,7 +355,7 @@ class Planes(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'planes'
 
 
@@ -368,7 +368,7 @@ class Programas(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'programas'
 
 
@@ -377,7 +377,7 @@ class Provincias(models.Model):
     nombre = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'provincias'
 
 
@@ -401,13 +401,13 @@ class ProyectoHistory(models.Model):
     proyectosrelacionados = models.CharField(db_column='proyectosRelacionados', max_length=255, blank=True, null=True)  # Field name made lowercase.
     idobjest = models.IntegerField(db_column='idObjEst', blank=True, null=True)  # Field name made lowercase.
     idmeta = models.IntegerField(db_column='idMeta', blank=True, null=True)  # Field name made lowercase.
-    inversion = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    duracionproyecto = models.DecimalField(db_column='duracionProyecto', max_digits=65535, decimal_places=65535, blank=True, null=True)  # Field name made lowercase.
+    inversion = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
+    duracionproyecto = models.DecimalField(db_column='duracionProyecto', max_digits=20, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     autogestion = models.CharField(max_length=255, blank=True, null=True)
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'proyecto_history'
 
 
@@ -418,7 +418,7 @@ class ProyectoImpactoAmbiental(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'proyecto_impacto_ambiental'
 
 
@@ -428,19 +428,19 @@ class ProyectoUbiGeografica(models.Model):
     idparroquia = models.ForeignKey(Parroquias, models.DO_NOTHING, db_column='idParroquia', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'proyecto_ubi_geografica'
 
 class FinanciamientoProyecto(models.Model):
     idfinanciamiento= models.AutoField(db_column='idFinanciamiento', primary_key=True)  # Field name made lowercase.
     idproyecto = models.ForeignKey('Proyectos', models.DO_NOTHING, db_column='idProyecto', blank=True, null=True)  # Field name made lowercase.
     fuente = models.CharField(max_length=255, blank=True, null=True)
-    monto = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
+    monto = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
     observaciones = models.CharField(max_length=255, blank=True, null=True)
     #estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'financiamiento_proyecto'
 
 class Proyectos(models.Model):
@@ -456,15 +456,15 @@ class Proyectos(models.Model):
     proyectosrelacionados = models.CharField(db_column='proyectosRelacionados', max_length=255, blank=True, null=True)  # Field name made lowercase.
     idobjest = models.ForeignKey(ObjetivoEstrategico, models.DO_NOTHING, db_column='idObjEst', blank=True, null=True)  # Field name made lowercase.
     idmeta = models.ForeignKey(Metas, models.DO_NOTHING, db_column='idMeta', blank=True, null=True)  # Field name made lowercase.
-    inversion = models.DecimalField(max_digits=65535, decimal_places=65535, blank=True, null=True)
-    duracionproyecto = models.DecimalField(db_column='duracionProyecto', max_digits=65535, decimal_places=65535, blank=True, null=True)  # Field name made lowercase.
+    inversion = models.DecimalField(max_digits=20, decimal_places=2, blank=True, null=True)
+    duracionproyecto = models.DecimalField(db_column='duracionProyecto', max_digits=20, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
     autogestion = models.CharField(max_length=255, blank=True, null=True)
     idprograma = models.ForeignKey(Programas, models.DO_NOTHING, db_column='idPrograma', blank=True, null=True)  # Field name made lowercase.
     sostenibilidad = models.CharField(max_length=255, blank=True, null=True)
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'proyectos'
 
 
@@ -475,7 +475,7 @@ class Roles(models.Model):
     estado = models.BooleanField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'roles'
 
 
@@ -493,5 +493,5 @@ class Usuario(models.Model):
     # Relación correcta con auth_user
     user = models.OneToOneField(User, on_delete=models.CASCADE, db_column='user_id', null=True)
     class Meta:
-        managed = False
+        managed = True
         db_table = 'usuario'

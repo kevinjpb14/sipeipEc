@@ -24,6 +24,7 @@ from datetime import datetime
 from .models import Proyectos, ProyectoImpactoAmbiental, Programas,Planes,Provincias,Cantones,Parroquias,Metas,FinanciamientoProyecto,ActividadesProyecto,PeriodoActividad
 from .models import ProyectoUbiGeografica
 import json
+from .funciones import log
 from django.template.loader import render_to_string
 
 @login_required(login_url='login')  # Redirige al login si no está autenticado
@@ -419,6 +420,7 @@ def subsector_agregar(request):
                 estado=True,
             )
             nueva.save()
+            log(u'Adiciono SubSector: %s' % nueva, request, "add", nueva)
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
@@ -571,6 +573,7 @@ def objetivo_estrategico_agregar(request):
                 fechacambio=timezone.now(),
                 idpnd=idpnd
             )
+            log(u'Adiciono Objetivo Estrategico: %s' % objetivo, request, "add", objetivo)
             return JsonResponse({'success': True})
         except Exception as e:
             print('Error '+str(e))
@@ -900,7 +903,7 @@ def proyecto_registrar(request):
         cantones = Cantones.objects.all()
         parroquias = Parroquias.objects.all()
         metas = Metas.objects.filter(estado=True)
-        usuarios = Usuario.objects.filter(estado=True,idrol=2)
+        usuarios = Usuario.objects.filter(estado=True,idrol=1)
         # fuentes de financiamiento
         FUENTES_FINANCIAMIENTO = [
         {'id': 1, 'nombre': 'Gobierno Central'},
@@ -986,7 +989,7 @@ def info_meta(request):
     idmeta = request.GET.get('idmeta')
     try:
         meta = Metas.objects.get(pk=idmeta)
-        indicador = meta.idindicador.nombre +' '+meta.idindicador.formula if meta.idindicador else 'Sin indicador asociado'
+        indicador = f'{meta.idindicador.nombre +' '+ str(meta.idindicador.formula) if meta.idindicador else 'Sin indicador asociado'}'
         return JsonResponse({'indicador': indicador})
     except Metas.DoesNotExist:
         return JsonResponse({'indicador': 'No encontrado'})

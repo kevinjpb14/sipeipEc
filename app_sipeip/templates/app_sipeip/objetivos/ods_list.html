@@ -64,7 +64,7 @@
                                 <td>{{ ods.numeroods }}</td>
                                 <td>{{ ods.nombre }}</td>
                                 <td>{% if ods.imagen %}
-                                    <img src="{% static ods.imagen %}" alt="ODS {{ ods.numeroods }}" title="{{ ods.nombre }}"  style="width:36px; height:36px; margin:2px; border-radius:6px; border:1px solid #ccc;">
+                                    <img src="{% static 'app_sipeip/images/ods_img/' %}{{ ods.imagen }}" alt="ODS {{ ods.numeroods }}" title="{{ ods.nombre }}"  style="width:36px; height:36px; margin:2px; border-radius:6px; border:1px solid #ccc;">
                                 {% else %}
                                     <span>No image</span>
                                 {% endif %}</td>
@@ -198,7 +198,7 @@
                 $('#editEstadoOds').val($(this).data('estado') ? 'True' : 'False');
 
                 // Mostrar preview de imagen
-                let url = $(this).data('imagen');
+                let url = '/static/app_sipeip/images/ods_img/'+$(this).data('imagen');
                 if (url) {
                     $('#previewImgOds').html('<img src="' + url + '" alt="ODS" style="height:38px;">');
                 } else {
